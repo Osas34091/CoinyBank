@@ -1,0 +1,35 @@
+{
+  "Dashboard": {
+    "hello": "Hello",
+    "user": "User",
+    "welcome": "Welcome to your secure dashboard.",
+    "secureConnection": "Secure Connection",
+    "totalBalance": "Total Balance",
+    "loading": "Loading...",
+    "recentTransactions": "Recent Transactions",
+    "recentTransactionsDesc": "Check your recent purchases and deposits.",
+    "myCards": "My Cards",
+    "myCardsDesc": "Manage your credit and debit cards.",
+    "needHelp": "Need help?",
+    "coinyHelp": "Look for <coiny>Coiny</coiny> on your screen (you can drag him). Click on him to ask for help or voice commands."
+  },
+  "Transactions": {
+    "back": "Back to Home",
+    "title": "Recent Transactions",
+    "loading": "Loading transactions...",
+    "purchase": "Purchase",
+    "deposit": "Deposit"
+  },
+  "Cards": {
+    "back": "Back to Home",
+    "title": "My Cards",
+    "loading": "Loading cards...",
+    "credit": "Credit",
+    "debit": "Debit",
+    "rewards": "Rewards"
+  },
+  "Assistant": {
+    "btnBalance": "View my current balance",
+    "btnTransactions": "Review recent transactions"
+  }
+}

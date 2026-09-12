@@ -1,0 +1,35 @@
+{
+  "Dashboard": {
+    "hello": "Hola",
+    "user": "Usuario",
+    "welcome": "Bienvenido a tu panel de control seguro.",
+    "secureConnection": "Conexión Segura",
+    "totalBalance": "Saldo Total",
+    "loading": "Cargando...",
+    "recentTransactions": "Últimos Movimientos",
+    "recentTransactionsDesc": "Revisa tus compras y depósitos recientes.",
+    "myCards": "Mis Tarjetas",
+    "myCardsDesc": "Administra tus tarjetas de crédito y débito.",
+    "needHelp": "¿Necesitas ayuda?",
+    "coinyHelp": "Busca a <coiny>Coiny</coiny> en tu pantalla (puedes arrastrarlo). Haz clic en él para pedirle ayuda o comandos por voz."
+  },
+  "Transactions": {
+    "back": "Volver al Inicio",
+    "title": "Últimos Movimientos",
+    "loading": "Cargando movimientos...",
+    "purchase": "Compra",
+    "deposit": "Depósito"
+  },
+  "Cards": {
+    "back": "Volver al Inicio",
+    "title": "Mis Tarjetas",
+    "loading": "Cargando tarjetas...",
+    "credit": "Crédito",
+    "debit": "Débito",
+    "rewards": "Recompensas"
+  },
+  "Assistant": {
+    "btnBalance": "Ver mi saldo actual",
+    "btnTransactions": "Revisar últimos movimientos"
+  }
+}
