@@ -26,6 +26,8 @@ export default function CoinyAssistant() {
   const [isThinking, setIsThinking] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
   const [isSpeaking, setIsSpeaking] = useState(false);
+  const [showKeyboard, setShowKeyboard] = useState(false);
+  const [inputValue, setInputValue] = useState("");
   const controls = useAnimation();
   const [windowSize, setWindowSize] = useState({ width: 0, height: 0 });
   const [isRightSide, setIsRightSide] = useState(true);
@@ -46,7 +48,8 @@ export default function CoinyAssistant() {
       { label: t("btnBalance"), action: "summary" },
       shuffled[0],
       shuffled[1],
-      { label: t("wakeOptIgnore"), action: "ignore" }
+      { label: t("wakeOptIgnore"), action: "ignore" },
+      { label: t("optManual"), action: "manual_input" }
     ];
   };
 
@@ -234,7 +237,13 @@ export default function CoinyAssistant() {
       setCurrentMessage(null);
       return;
     }
+    if (action === "manual_input") {
+      setShowKeyboard(true);
+      return;
+    }
+    
     setCurrentMessage(null);
+    setShowKeyboard(false);
     setIsThinking(true);
     
     try {
@@ -253,13 +262,66 @@ export default function CoinyAssistant() {
   };
 
   const toggleMic = () => {
-    setIsListening(!isListening);
-    if (!isListening) {
+    if (isListening) return; // If already listening, do nothing (user can't cancel via same button easily right now)
+    
+    // Check if SpeechRecognition API exists
+    const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+    
+    if (!SpeechRecognition) {
+      // Graceful fallback for HTTP without SSL or unsupported browsers
+      console.warn("Speech Recognition API not supported or blocked (likely due to missing HTTPS). Falling back to keyboard.");
+      setCurrentMessage({
+        message: t("voiceError"),
+        options: [],
+        msgKey: 'llm'
+      });
+      setShowKeyboard(true);
+      return;
+    }
+
+    const recognition = new SpeechRecognition();
+    recognition.lang = locale === 'en' ? 'en-US' : 'es-MX';
+    recognition.interimResults = false;
+    recognition.maxAlternatives = 1;
+
+    recognition.onstart = () => {
+      setIsListening(true);
       setCurrentMessage(null);
-      setTimeout(() => {
-        setIsListening(false);
-        handleOptionClick("voice_input", t("micCommand"));
-      }, 2500);
+    };
+
+    recognition.onresult = (event: any) => {
+      const transcript = event.results[0][0].transcript;
+      setIsListening(false);
+      handleOptionClick("dynamic", transcript);
+    };
+
+    recognition.onerror = (event: any) => {
+      console.error("Speech recognition error", event.error);
+      setIsListening(false);
+      // Fallback
+      setCurrentMessage({
+        message: t("voiceError"),
+        options: [],
+        msgKey: 'llm'
+      });
+      setShowKeyboard(true);
+    };
+
+    recognition.onend = () => {
+      setIsListening(false);
+    };
+
+    try {
+      recognition.start();
+    } catch (e) {
+      console.error("Failed to start speech recognition:", e);
+      setIsListening(false);
+      setCurrentMessage({
+        message: t("voiceError"),
+        options: [],
+        msgKey: 'llm'
+      });
+      setShowKeyboard(true);
     }
   };
 
@@ -297,15 +359,44 @@ export default function CoinyAssistant() {
                 />
                 
                 <div className="flex flex-col gap-3">
-                  {(currentMessage.options || []).map((opt, i) => (
-                    <button
-                      key={i}
-                      onClick={() => handleOptionClick(opt.action, opt.label)}
-                      className="bg-white border-2 border-slate-200 hover:border-blue-500 hover:bg-blue-50 text-slate-700 font-bold py-2 px-4 rounded-xl text-left transition-all active:scale-95 shadow-sm"
+                  {!showKeyboard ? (
+                    (currentMessage.options || []).map((opt, i) => (
+                      <button
+                        key={i}
+                        onClick={() => handleOptionClick(opt.action, opt.label)}
+                        className="bg-white border-2 border-slate-200 hover:border-blue-500 hover:bg-blue-50 text-slate-700 font-bold py-2 px-4 rounded-xl text-left transition-all active:scale-95 shadow-sm"
+                      >
+                        {opt.label}
+                      </button>
+                    ))
+                  ) : (
+                    <form 
+                      onSubmit={(e) => {
+                        e.preventDefault();
+                        if (inputValue.trim()) {
+                          handleOptionClick("dynamic", inputValue.trim());
+                          setInputValue("");
+                        }
+                      }}
+                      className="flex flex-col gap-2"
                     >
-                      {opt.label}
-                    </button>
-                  ))}
+                      <input
+                        type="text"
+                        value={inputValue}
+                        onChange={(e) => setInputValue(e.target.value)}
+                        placeholder={t("placeholderInput") || "Escribe aquí..."}
+                        autoFocus
+                        className="w-full border-2 border-slate-300 rounded-xl px-3 py-2 focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-200 text-slate-800"
+                      />
+                      <button
+                        type="submit"
+                        disabled={!inputValue.trim()}
+                        className="bg-blue-600 text-white font-bold py-2 px-4 rounded-xl disabled:opacity-50 hover:bg-blue-700 transition-all active:scale-95 shadow-sm"
+                      >
+                        {t("btnSend") || "Enviar"}
+                      </button>
+                    </form>
+                  )}
                 </div>
               </div>
             </motion.div>

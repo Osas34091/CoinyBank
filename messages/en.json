@@ -11,7 +11,13 @@
     "myCards": "My Cards",
     "myCardsDesc": "Manage your credit and debit cards.",
     "needHelp": "Need help?",
-    "coinyHelp": "Look for <coiny>Coiny</coiny> on your screen (you can drag him). Click on him to ask for help or voice commands."
+    "coinyHelp": "Look for <coiny>Coiny</coiny> on your screen (you can drag him). Click on him to ask for help or voice commands.",
+    "upcomingBills": "Upcoming Bills",
+    "upcomingBillsDesc": "Don't miss your next payments.",
+    "myLoans": "My Loans",
+    "myLoansDesc": "Keep track of your active loans.",
+    "pay": "Pay",
+    "monthly": "Monthly"
   },
   "Transactions": {
     "back": "Back to Home",
@@ -45,6 +51,10 @@
     "optAdvice": "Give me some financial advice",
     "optAnalyze": "Analyze my recent expenses",
     "optBiggest": "What am I spending the most on?",
-    "optSave": "How can I save a little?"
+    "optSave": "How can I save a little?",
+    "optManual": "Type another question...",
+    "btnSend": "Send",
+    "placeholderInput": "Write your question here...",
+    "voiceError": "Oops! I can't hear you due to technical issues, but please write your question below:"
   }
 }

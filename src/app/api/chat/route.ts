@@ -28,6 +28,14 @@ export async function POST(request: Request) {
     // 2. Pasamos el contexto al "Cerebro" (Conexión VPS Vultr)
     const response = await generateRealAssistantResponse(bankingContext, message, lang);
 
+    // 3. Siempre inyectamos la opción de escritura manual al final
+    const manualOption = {
+      label: lang === 'en' ? "Type another question..." : "Escribir otra pregunta a mano...",
+      action: "manual_input"
+    };
+    
+    response.options = [...(response.options || []), manualOption];
+
     return NextResponse.json(response);
 
   } catch (error: any) {

@@ -41,7 +41,7 @@ export default async function Home() {
           </p>
         </section>
 
-        <section className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <section className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           
           <Link 
             href="/movimientos"
@@ -50,8 +50,8 @@ export default async function Home() {
             <div className="w-14 h-14 bg-blue-100 text-blue-700 rounded-xl flex items-center justify-center mb-4">
               <ArrowRightLeft className="w-8 h-8" />
             </div>
-            <h3 className="text-2xl font-bold mb-2">{t("recentTransactions")}</h3>
-            <p className="text-slate-600 text-lg">{t("recentTransactionsDesc")}</p>
+            <h3 className="text-xl font-bold mb-2">{t("recentTransactions")}</h3>
+            <p className="text-slate-600 text-sm">{t("recentTransactionsDesc")}</p>
           </Link>
 
           <Link 
@@ -61,9 +61,42 @@ export default async function Home() {
             <div className="w-14 h-14 bg-purple-100 text-purple-700 rounded-xl flex items-center justify-center mb-4">
               <CreditCard className="w-8 h-8" />
             </div>
-            <h3 className="text-2xl font-bold mb-2">{t("myCards")}</h3>
-            <p className="text-slate-600 text-lg">{t("myCardsDesc")}</p>
+            <h3 className="text-xl font-bold mb-2">{t("myCards")}</h3>
+            <p className="text-slate-600 text-sm">{t("myCardsDesc")}</p>
           </Link>
+          
+          {/* Próximos Pagos (Bills) */}
+          <div className="text-left bg-white p-6 rounded-2xl shadow-sm border border-slate-200 block">
+            <h3 className="text-xl font-bold mb-2 text-slate-800">{t("upcomingBills")}</h3>
+            <p className="text-slate-600 text-sm mb-4">{t("upcomingBillsDesc")}</p>
+            {bankingData?.bills?.slice(0, 2).map((bill: any) => (
+              <div key={bill.id} className="flex justify-between items-center py-2 border-t border-slate-100 mt-2">
+                <div>
+                  <p className="font-bold text-slate-700">{bill.payee}</p>
+                  <p className="text-xs text-slate-500">{bill.date}</p>
+                </div>
+                <div className="text-right">
+                  <p className="font-bold text-red-600">-${bill.amount}</p>
+                  <button className="text-xs text-blue-600 font-bold hover:underline mt-1">{t("pay")}</button>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {/* Préstamos (Loans) */}
+          <div className="text-left bg-white p-6 rounded-2xl shadow-sm border border-slate-200 block">
+            <h3 className="text-xl font-bold mb-2 text-slate-800">{t("myLoans")}</h3>
+            <p className="text-slate-600 text-sm mb-4">{t("myLoansDesc")}</p>
+            {bankingData?.loans?.slice(0, 2).map((loan: any) => (
+              <div key={loan.id} className="flex flex-col py-2 border-t border-slate-100 mt-2">
+                <div className="flex justify-between items-center">
+                  <p className="font-bold text-slate-700">{loan.description}</p>
+                  <p className="font-black text-slate-800">${loan.amount}</p>
+                </div>
+                <p className="text-xs text-slate-500 mt-1">${loan.monthly} / {t("monthly")}</p>
+              </div>
+            ))}
+          </div>
 
         </section>
 

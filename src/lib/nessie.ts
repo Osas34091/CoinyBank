@@ -42,6 +42,24 @@ export interface Transaction {
   description: string;
 }
 
+export interface Bill {
+  _id: string;
+  status: string;
+  payee: string;
+  nickname: string;
+  payment_date: string;
+  payment_amount: number;
+}
+
+export interface Loan {
+  _id: string;
+  type: string;
+  status: string;
+  amount: number;
+  monthly_payment: number;
+  description: string;
+}
+
 export const nessieService = {
   // Get all customers (useful for testing)
   async getCustomers(): Promise<Customer[]> {
@@ -83,6 +101,32 @@ export const nessieService = {
       return [
         { _id: "t1", type: "merchant", merchant_id: "m1", payer_id: "u1", payee_id: "u2", amount: 500, status: "pending", transaction_date: today, description: "Farmacias del Ahorro" },
         { _id: "t2", type: "merchant", merchant_id: "m2", payer_id: "u1", payee_id: "u2", amount: 299, status: "pending", transaction_date: today, description: "Netflix" }
+      ];
+    }
+  },
+
+  // Get bills for an account
+  async getAccountBills(accountId: string): Promise<Bill[]> {
+    try {
+      const response = await fetch(`${NESSIE_BASE_URL}/accounts/${accountId}/bills?key=${getApiKey()}`);
+      if (!response.ok) throw new Error("Failed to fetch bills");
+      return await response.json();
+    } catch (e) {
+      return [
+        { _id: "b1", status: "pending", payee: "CFE", nickname: "Luz", payment_date: "2026-09-30", payment_amount: 350.50 }
+      ];
+    }
+  },
+
+  // Get loans for an account
+  async getAccountLoans(accountId: string): Promise<Loan[]> {
+    try {
+      const response = await fetch(`${NESSIE_BASE_URL}/accounts/${accountId}/loans?key=${getApiKey()}`);
+      if (!response.ok) throw new Error("Failed to fetch loans");
+      return await response.json();
+    } catch (e) {
+      return [
+        { _id: "l1", type: "personal", status: "active", amount: 5000, monthly_payment: 500, description: "Préstamo Personal" }
       ];
     }
   },
@@ -196,6 +240,8 @@ export const nessieService = {
     const customer = await this.getCustomer(customerId);
     const accounts = await this.getCustomerAccounts(customerId);
     const purchases = await this.getAccountPurchases(accountId);
+    const bills = await this.getAccountBills(accountId);
+    const loans = await this.getAccountLoans(accountId);
     const mainAccount = accounts.find((a: any) => a._id === accountId) || accounts[0];
 
     return {
@@ -218,6 +264,21 @@ export const nessieService = {
         type: "purchase",
         payee_id: p.payee_id,
         merchant_id: p.merchant_id
+      })),
+      bills: bills.map((b: any) => ({
+        id: b._id,
+        amount: b.payment_amount,
+        date: b.payment_date,
+        payee: b.payee,
+        nickname: b.nickname,
+        status: b.status
+      })),
+      loans: loans.map((l: any) => ({
+        id: l._id,
+        amount: l.amount,
+        monthly: l.monthly_payment,
+        description: l.description,
+        status: l.status
       }))
     };
   }
