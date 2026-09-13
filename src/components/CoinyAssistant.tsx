@@ -29,6 +29,7 @@ export default function CoinyAssistant() {
   const [showKeyboard, setShowKeyboard] = useState(false);
   const [inputValue, setInputValue] = useState("");
   const controls = useAnimation();
+  const [windowSize, setWindowSize] = useState({ width: 0, height: 0 });
   const [isRightSide, setIsRightSide] = useState(true);
   const [isJumping, setIsJumping] = useState(false);
   const lastActivityTime = useRef<number>(Date.now());
