@@ -137,7 +137,7 @@ export default function CoinyAssistant() {
       setCurrentMessage(null);
       setIsThinking(true);
       
-      setTimeout(async () => {
+      const processWake = async () => {
         try {
           const res = await fetch('/api/chat', {
             method: 'POST',
@@ -156,12 +156,27 @@ export default function CoinyAssistant() {
           setIsThinking(false);
           await speakAndAnimate(t("errorMsg2"), { message: "Error", options: [], msgKey: 'llm' });
         }
-      }, 500);
+      };
+      processWake();
     };
 
     window.addEventListener("coiny_wake", handleWake);
     return () => window.removeEventListener("coiny_wake", handleWake);
   }, [locale, t]);
+
+  // Click outside to close message
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      if (!currentMessage && !isThinking) return;
+      const target = e.target as HTMLElement;
+      if (target.closest('#coiny-assistant-container')) return;
+      
+      setCurrentMessage(null);
+    };
+    
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, [currentMessage, isThinking]);
 
   const jumpToSafeZone = async (callback?: () => void) => {
     const margin = 200;
@@ -231,6 +246,7 @@ export default function CoinyAssistant() {
   return (
     <div className="fixed inset-0 z-50 pointer-events-none">
       <motion.div 
+        id="coiny-assistant-container"
         drag
         dragMomentum={false}
         onDragStart={() => setIsDragging(true)}
