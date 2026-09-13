@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence, useAnimation } from "framer-motion";
-import { Mic } from "lucide-react";
+import { Mic, ArrowLeftRight } from "lucide-react";
 import { Canvas } from "@react-three/fiber";
 import Coin3D from "./Coin3D";
 import { useTranslations, useLocale } from "next-intl";
@@ -31,6 +31,7 @@ export default function CoinyAssistant() {
   const controls = useAnimation();
   const [windowSize, setWindowSize] = useState({ width: 0, height: 0 });
   const [isRightSide, setIsRightSide] = useState(true);
+  const [sideIndex, setSideIndex] = useState(0);
   
   const posRef = useRef({ x: 0, y: 0 });
   const audioRef = useRef<HTMLAudioElement | null>(null);
@@ -85,23 +86,33 @@ export default function CoinyAssistant() {
       const handleResize = () => setWindowSize({ width: window.innerWidth, height: window.innerHeight });
       window.addEventListener('resize', handleResize);
       
-      // Initial position bottom right
-      const startX = width - 150;
-      const startY = height - 150;
-      posRef.current = { x: startX, y: startY };
-      setIsRightSide(startX > width / 2);
-      controls.set({ x: startX, y: startY });
+      // Initial position outside bottom right
+      const startX = width > 768 ? width - 150 : width / 2;
+      const endY = height - 150;
       
+      posRef.current = { x: startX, y: endY };
+      setIsRightSide(startX > width / 2);
+      
+      // Start outside bottom
+      controls.set({ x: startX, y: height + 300 });
+      
+      // Entrance Jump
       setTimeout(() => {
-        jumpToSafeZone(() => {
-          // Initialize with current language
+        controls.start({
+          y: [height + 300, endY - 200, endY],
+          transition: { 
+            duration: 1.2, 
+            times: [0, 0.6, 1],
+            ease: ["easeOut", "easeIn"]
+          }
+        }).then(() => {
           setCurrentMessage({
             message: t("greetingMsg"),
             options: [{ label: t("greetingOpt"), action: "ignore" }],
             msgKey: 'greeting'
           });
         });
-      }, 1000);
+      }, 500);
 
       return () => window.removeEventListener('resize', handleResize);
     }
@@ -195,35 +206,27 @@ export default function CoinyAssistant() {
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, [currentMessage, isThinking]);
 
-  const jumpToSafeZone = async (callback?: () => void) => {
-    const margin = 200;
-    const { x, y } = posRef.current;
-    const { width, height } = windowSize;
+  const toggleSide = () => {
+    if (isThinking || isSpeaking || currentMessage) return; // Don't jump while busy
     
-    // Check if out of bounds (or near edge where bubble cuts off)
-    if (x < margin || x > width - margin || y < margin || y > height - margin) {
-      const safeX = Math.max(margin, Math.min(x, width - margin));
-      const safeY = Math.max(margin, Math.min(y, height - margin));
-      
-      await controls.start({
-        x: safeX,
-        y: safeY,
-        transition: { type: "spring", stiffness: 100, damping: 10 }
-      });
-      posRef.current = { x: safeX, y: safeY };
-      setIsRightSide(safeX > width / 2);
-    }
-    if (callback) callback();
-  };
+    const newIsRight = !isRightSide;
+    setIsRightSide(newIsRight);
+    setSideIndex(prev => prev + 1); // trigger Split animation
 
-  const handleDragEnd = (e: any, info: any) => {
-    setIsDragging(false);
-    posRef.current = {
-      x: posRef.current.x + info.offset.x,
-      y: posRef.current.y + info.offset.y,
-    };
-    setIsRightSide(posRef.current.x > windowSize.width / 2);
-    jumpToSafeZone();
+    const targetX = newIsRight ? windowSize.width - 150 : 150;
+    const targetY = windowSize.height - 150;
+    
+    // Parabola physics
+    controls.start({
+      x: targetX,
+      y: [targetY, targetY - 250, targetY], // Jump arc
+      transition: { 
+        x: { duration: 0.8, ease: "linear" },
+        y: { duration: 0.8, times: [0, 0.5, 1], ease: ["easeOut", "easeIn"] }
+      }
+    });
+    
+    posRef.current = { x: targetX, y: targetY };
   };
 
   const handleOptionClick = async (action: string, label: string) => {
@@ -329,13 +332,8 @@ export default function CoinyAssistant() {
     <div className="fixed inset-0 z-50 pointer-events-none">
       <motion.div 
         id="coiny-assistant-container"
-        drag
-        dragMomentum={false}
-        onDragStart={() => setIsDragging(true)}
-        onDragEnd={handleDragEnd}
         animate={controls}
         className="pointer-events-auto absolute flex flex-col items-center justify-center"
-        style={{ touchAction: 'none' }}
       >
         <AnimatePresence>
           {currentMessage && (
@@ -424,24 +422,30 @@ export default function CoinyAssistant() {
           )}
         </AnimatePresence>
 
-        <div className="relative group cursor-grab active:cursor-grabbing">
+        <div className="relative group cursor-pointer">
           <button 
             onClick={(e) => { e.stopPropagation(); toggleMic(); }}
-            className={`absolute -left-16 top-1/2 -translate-y-1/2 p-3 rounded-full shadow-md transition-all ${isListening ? 'bg-red-500 text-white animate-pulse scale-110' : 'bg-white text-slate-400 opacity-0 group-hover:opacity-100 hover:text-blue-500 hover:bg-blue-50'}`}
+            className={`absolute -left-12 top-1/2 -translate-y-1/2 p-3 rounded-full shadow-md transition-all z-10 ${isListening ? 'bg-red-500 text-white animate-pulse scale-110' : 'bg-white text-slate-400 opacity-0 group-hover:opacity-100 hover:text-blue-500 hover:bg-blue-50'}`}
             aria-label="Hablar con el asistente"
           >
             <Mic className="w-5 h-5" />
           </button>
 
+          <button 
+            onClick={(e) => { e.stopPropagation(); toggleSide(); }}
+            className={`absolute -right-12 top-1/2 -translate-y-1/2 p-3 rounded-full shadow-md transition-all z-10 bg-white text-slate-400 opacity-0 group-hover:opacity-100 hover:text-blue-500 hover:bg-blue-50`}
+            aria-label="Cambiar de lado"
+          >
+            <ArrowLeftRight className="w-5 h-5" />
+          </button>
+
           <motion.div
             onClick={() => {
-              if (!isDragging && !currentMessage && !isThinking) {
-                jumpToSafeZone(() => {
-                  setCurrentMessage({
-                    message: t("wakeMsg"),
-                    options: getWakeOptions(),
-                    msgKey: 'wake'
-                  });
+              if (!currentMessage && !isThinking) {
+                setCurrentMessage({
+                  message: t("wakeMsg"),
+                  options: getWakeOptions(),
+                  msgKey: 'wake'
                 });
               }
             }}
@@ -453,7 +457,7 @@ export default function CoinyAssistant() {
               <Canvas camera={{ position: [0, 0, 4], fov: 35 }}>
                 <ambientLight intensity={1.5} />
                 <directionalLight position={[10, 10, 10]} intensity={2} />
-                <Coin3D isSpeaking={isSpeaking} isThinking={isThinking} />
+                <Coin3D isSpeaking={isSpeaking} isThinking={isThinking} sideIndex={sideIndex} />
               </Canvas>
             </div>
           </motion.div>
