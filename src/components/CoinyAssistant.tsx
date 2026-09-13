@@ -33,6 +33,22 @@ export default function CoinyAssistant() {
   const posRef = useRef({ x: 0, y: 0 });
   const [currentMessage, setCurrentMessage] = useState<AssistantResponse | null>(null);
 
+  const getWakeOptions = () => {
+    const pool = [
+      { label: t("optAdvice"), action: "dynamic" },
+      { label: t("optAnalyze"), action: "dynamic" },
+      { label: t("optBiggest"), action: "dynamic" },
+      { label: t("optSave"), action: "dynamic" }
+    ];
+    const shuffled = pool.sort(() => 0.5 - Math.random());
+    return [
+      { label: t("btnBalance"), action: "summary" },
+      shuffled[0],
+      shuffled[1],
+      { label: t("wakeOptIgnore"), action: "ignore" }
+    ];
+  };
+
   // Re-translate hardcoded messages when language changes
   useEffect(() => {
     if (!currentMessage) return;
@@ -46,10 +62,7 @@ export default function CoinyAssistant() {
     } else if (currentMessage.msgKey === 'wake') {
       setCurrentMessage({
         message: t("wakeMsg"),
-        options: [
-          { label: t("btnBalance"), action: "summary" },
-          { label: t("wakeOptIgnore"), action: "ignore" }
-        ],
+        options: getWakeOptions(),
         msgKey: 'wake'
       });
     } else if (currentMessage.msgKey === 'llm') {
@@ -299,10 +312,7 @@ export default function CoinyAssistant() {
                 jumpToSafeZone(() => {
                   setCurrentMessage({
                     message: t("wakeMsg"),
-                    options: [
-                      { label: t("btnBalance"), action: "summary" },
-                      { label: t("wakeOptIgnore"), action: "ignore" }
-                    ],
+                    options: getWakeOptions(),
                     msgKey: 'wake'
                   });
                 });

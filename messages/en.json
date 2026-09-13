@@ -41,6 +41,10 @@
     "wakeOptIgnore": "Nothing, keep hopping",
     "errorMsg1": "Looks like there was an error.",
     "errorMsg2": "Oops, something went wrong.",
-    "micCommand": "Hi, check my accounts"
+    "micCommand": "Hi, check my accounts",
+    "optAdvice": "Give me some financial advice",
+    "optAnalyze": "Analyze my recent expenses",
+    "optBiggest": "What am I spending the most on?",
+    "optSave": "How can I save a little?"
   }
 }
