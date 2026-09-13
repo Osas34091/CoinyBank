@@ -9,9 +9,10 @@ interface Coin3DProps {
   isSpeaking?: boolean;
   isThinking?: boolean;
   isJumping?: boolean; // When true, play Split.
+  isEntering?: boolean;
 }
 
-export default function Coin3D({ isSpeaking = false, isThinking = false, isJumping = false }: Coin3DProps) {
+export default function Coin3D({ isSpeaking = false, isThinking = false, isJumping = false, isEntering = false }: Coin3DProps) {
   const group = useRef<THREE.Group>(null);
   
   // Usar el nuevo modelo V4 (CoinityV2)
@@ -41,6 +42,11 @@ export default function Coin3D({ isSpeaking = false, isThinking = false, isJumpi
       return null;
     };
 
+    if (isEntering) {
+      playAnim("Entrance", false);
+      return;
+    }
+
     if (isThinking) {
       // 1. Thinking
       playAnim("Thinking", true);
@@ -48,11 +54,11 @@ export default function Coin3D({ isSpeaking = false, isThinking = false, isJumpi
     }
 
     // 2. Idle / Speaking / Jumping
-    // El nuevo modelo solo tiene la animación Thinking, así que lo detenemos
-    // para que vuelva a su "T-Pose" o pose base.
+    // El nuevo modelo solo tiene la animación Thinking y Entrance.
+    // Lo detenemos para pose base.
     stopAll();
 
-  }, [isJumping, isThinking, isSpeaking, actions]);
+  }, [isJumping, isThinking, isSpeaking, isEntering, actions]);
 
   // Squash & Stretch para hablar
   useFrame((state, delta) => {

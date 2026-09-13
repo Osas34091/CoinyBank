@@ -79,6 +79,8 @@ export default function CoinyAssistant() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [locale, t]);
 
+  const [isEntering, setIsEntering] = useState(false);
+
   useEffect(() => {
     if (typeof window !== 'undefined') {
       const width = window.innerWidth;
@@ -94,21 +96,20 @@ export default function CoinyAssistant() {
       posRef.current = { x: endX, y: endY };
       setIsRightSide(endX > width / 2);
       
-      // Entrance Jump from left side
-      const startX = -300; 
-      controls.set({ x: startX, y: endY - 100 });
-      setIsJumping(true);
+      // Entrance Jump from right side
+      const startX = width + 300; 
+      controls.set({ x: startX, y: endY });
+      setIsEntering(true);
       
       setTimeout(() => {
         controls.start({
           x: endX,
-          y: [endY - 100, endY - 300, endY],
+          y: endY,
           transition: { 
-            x: { duration: 1.2, ease: "linear" },
-            y: { duration: 1.2, times: [0, 0.5, 1], ease: ["easeOut", "easeIn"] }
+            x: { duration: 1.2, ease: "easeOut" }
           }
         }).then(() => {
-          setIsJumping(false);
+          setIsEntering(false);
           setCurrentMessage({
             message: t("greetingMsg"),
             options: [{ label: t("greetingOpt"), action: "ignore" }],
@@ -610,7 +611,7 @@ export default function CoinyAssistant() {
               <Canvas camera={{ position: [0, 0, 4], fov: 35 }}>
                 <ambientLight intensity={1.5} />
                 <directionalLight position={[10, 10, 10]} intensity={2} />
-                <Coin3D isSpeaking={isSpeaking} isThinking={isThinking} isJumping={isJumping} />
+                <Coin3D isSpeaking={isSpeaking} isThinking={isThinking} isJumping={isJumping} isEntering={isEntering} />
               </Canvas>
             </div>
           </motion.div>
