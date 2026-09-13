@@ -342,7 +342,7 @@ export default function CoinyAssistant() {
               <Canvas camera={{ position: [0, 0, 1], fov: 40 }}>
                 <ambientLight intensity={1.5} />
                 <directionalLight position={[10, 10, 10]} intensity={2} />
-                <Coin3D isSpeaking={isSpeaking} />
+                <Coin3D isSpeaking={isSpeaking} isThinking={isThinking} />
               </Canvas>
             </div>
           </motion.div>
