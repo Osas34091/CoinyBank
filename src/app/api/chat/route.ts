@@ -19,10 +19,14 @@ export async function POST(request: Request) {
     
     const mainAccount = accounts.find(a => a._id === accountId) || accounts[0];
     
+    const recentTx = purchases.slice(0, 5);
+    const totalSpent = recentTx.reduce((acc, tx) => acc + (tx.amount || 0), 0);
+    
     const bankingContext = {
       userName: customer.first_name,
       balance: mainAccount.balance,
-      recentTransactions: purchases.slice(0, 5) // Contexto de las últimas 5 transacciones
+      recentTransactions: recentTx, // Contexto de las últimas 5 transacciones
+      totalSpent: totalSpent
     };
 
     // 2. Pasamos el contexto al "Cerebro" (Conexión VPS Vultr)
