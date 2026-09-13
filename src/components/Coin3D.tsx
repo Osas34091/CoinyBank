@@ -64,7 +64,7 @@ export default function Coin3D({ isSpeaking = false, isThinking = false }: Coin3
   // engaña a estos componentes y hace que la cámara se mueva hacia arriba,
   // causando el efecto de "verlo desde arriba".
   return (
-    <group ref={group} rotation={[0, 0, 0]} position={[0, -0.5, 0]} scale={[0.5, 0.5, 0.5]}>
+    <group ref={group} rotation={[0, 0, 0]} position={[0, -1.5, 0]} scale={[0.55, 0.55, 0.55]}>
       <primitive object={scene} />
     </group>
   );

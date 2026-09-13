@@ -359,7 +359,7 @@ export default function CoinyAssistant() {
             className="w-28 h-32 flex flex-col items-center justify-center relative"
           >
             <div className="w-full h-full pointer-events-none">
-              <Canvas camera={{ position: [0, 0.5, 4], fov: 35 }}>
+              <Canvas camera={{ position: [0, 0, 4], fov: 35 }}>
                 <ambientLight intensity={1.5} />
                 <directionalLight position={[10, 10, 10]} intensity={2} />
                 <Coin3D isSpeaking={isSpeaking} isThinking={isThinking} />
