@@ -217,7 +217,7 @@ export default function CoinyAssistant() {
     
     const scheduleNextWander = () => {
       const timeSinceActivity = Date.now() - lastActivityTime.current;
-      if (timeSinceActivity >= 5000 && !isThinking && !isSpeaking && !currentMessage && !isDragging && !isJumping) {
+      if (timeSinceActivity >= 5000 && !isThinking && !isSpeaking && !currentMessage && !isDragging && !isJumping && !isListening) {
         wanderToRandomSpot();
       } else {
         // Not ready, try again later
@@ -268,7 +268,7 @@ export default function CoinyAssistant() {
     return () => {
       if (wanderTimeoutRef.current) clearTimeout(wanderTimeoutRef.current);
     };
-  }, [isThinking, isSpeaking, currentMessage, isDragging, isJumping]);
+  }, [isThinking, isSpeaking, currentMessage, isDragging, isJumping, isListening]);
 
   const toggleSide = () => {
     if (isThinking || isSpeaking || currentMessage || isJumping) return; // Don't jump while busy
@@ -367,24 +367,32 @@ export default function CoinyAssistant() {
   const silenceTimeoutRef2 = useRef<NodeJS.Timeout | null>(null);
   const currentTranscriptRef = useRef<string>("");
 
-  const stopRecognition = () => {
+  const forceSubmitVoice = () => {
     if (silenceTimeoutRef2.current) clearTimeout(silenceTimeoutRef2.current);
-    if (recognitionRef.current) {
-      recognitionRef.current.stop();
-      recognitionRef.current = null;
-    }
-    setIsListening(false);
     
+    // Si hay texto, enviarlo inmediatamente y limpiar
     if (currentTranscriptRef.current.trim()) {
       handleOptionClick("dynamic", currentTranscriptRef.current.trim());
       currentTranscriptRef.current = "";
     }
+    
+    // Detener de forma segura sin disparar el onend doble
+    if (recognitionRef.current) {
+      // Quitamos el onend para que no haga envíos dobles si el navegador decide dispararlo al detenerse
+      recognitionRef.current.onend = null;
+      recognitionRef.current.onresult = null;
+      try {
+        recognitionRef.current.stop();
+      } catch (e) {}
+      recognitionRef.current = null;
+    }
+    setIsListening(false);
   };
 
   const toggleMic = () => {
     if (isListening) {
       // Manual stop
-      stopRecognition();
+      forceSubmitVoice();
       return;
     }
     
@@ -418,24 +426,20 @@ export default function CoinyAssistant() {
       
       // Start initial silence timeout just in case they don't say anything
       if (silenceTimeoutRef2.current) clearTimeout(silenceTimeoutRef2.current);
-      silenceTimeoutRef2.current = setTimeout(stopRecognition, 5000);
+      silenceTimeoutRef2.current = setTimeout(forceSubmitVoice, 5000);
     };
 
     recognition.onresult = (event: any) => {
       let finalTranscript = "";
       for (let i = event.resultIndex; i < event.results.length; ++i) {
-        if (event.results[i].isFinal) {
-          finalTranscript += event.results[i][0].transcript;
-        } else {
-          finalTranscript += event.results[i][0].transcript;
-        }
+        finalTranscript += event.results[i][0].transcript;
       }
       
       currentTranscriptRef.current = finalTranscript;
       
       // Reset the silence timeout
       if (silenceTimeoutRef2.current) clearTimeout(silenceTimeoutRef2.current);
-      silenceTimeoutRef2.current = setTimeout(stopRecognition, 5000);
+      silenceTimeoutRef2.current = setTimeout(forceSubmitVoice, 5000);
     };
 
     recognition.onerror = (event: any) => {
@@ -453,9 +457,9 @@ export default function CoinyAssistant() {
     };
 
     recognition.onend = () => {
-      // Only handle if it stopped on its own (not manually stopped by us)
-      if (isListening && recognitionRef.current) {
-        stopRecognition();
+      // Si se detiene por sí solo (por límite de tiempo del navegador)
+      if (isListening) {
+        forceSubmitVoice();
       }
     };
 
