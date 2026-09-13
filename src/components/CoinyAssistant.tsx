@@ -256,7 +256,7 @@ export default function CoinyAssistant() {
 
               <div className="relative z-10">
                 <div 
-                  className="text-lg font-medium text-slate-800 mb-5 leading-snug [&>ul]:list-disc [&>ul]:pl-5 [&>ul]:mt-2 [&>ul>li]:mb-1 [&>b]:text-blue-700"
+                  className="text-lg font-medium text-slate-800 mb-5 leading-snug max-h-[50vh] overflow-y-auto pr-2 custom-scrollbar [&>ul]:list-disc [&>ul]:pl-5 [&>ul]:mt-2 [&>ul>li]:mb-1 [&>b]:text-blue-700"
                   dangerouslySetInnerHTML={{ __html: currentMessage.message }}
                 />
                 
