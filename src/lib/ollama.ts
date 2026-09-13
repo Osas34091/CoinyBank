@@ -21,7 +21,7 @@ Your job is to help the user manage their finances, answer questions about their
 Current User Financial Context:
 - Main Account Balance: $${context.balance} MXN
 - Recent Transactions:
-${context.recentTransactions.map((tx: any) => `  * ${tx.type === 'deposit' ? '+' : '-'}$${tx.amount} to/from ${tx.payee_id || tx.merchant_id || 'External'}`).join('\n')}
+${context.recentTransactions.map((tx: any) => `  * ${tx.type === 'deposit' ? '+' : '-'}$${tx.amount} for ${tx.description || tx.merchant_id || 'External'}`).join('\n')}
 
 Rules:
 1. You MUST respond in ${isEn ? 'English' : 'Spanish'}.

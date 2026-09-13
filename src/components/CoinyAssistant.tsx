@@ -210,7 +210,7 @@ export default function CoinyAssistant() {
       setCurrentMessage(null);
       setTimeout(() => {
         setIsListening(false);
-        handleOptionClick("voice_input", "Hola, revisa mis cuentas");
+        handleOptionClick("voice_input", t("micCommand"));
       }, 2500);
     }
   };

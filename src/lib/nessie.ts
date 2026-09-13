@@ -212,11 +212,12 @@ export const nessieService = {
       transactions: purchases.map((p: any) => ({
         id: p._id,
         amount: p.amount,
-        date: p.purchase_date,
+        date: p.purchase_date || p.transaction_date,
         description: p.description,
         status: p.status,
         type: "purchase",
-        payee_id: p.payee_id
+        payee_id: p.payee_id,
+        merchant_id: p.merchant_id
       }))
     };
   }

@@ -33,7 +33,7 @@ export default async function MovimientosPage() {
                 <li key={idx} className="flex justify-between items-center border-b pb-4">
                   <div>
                     <p className="font-bold text-slate-800">
-                      {tx.type === "deposit" ? t("deposit") : t("purchase")} {t("to")} {tx.payee_id || tx.merchant_id || t("externalAccount")}
+                      {tx.type === "deposit" ? t("deposit") : t("purchase")} {t("to")} {tx.description || tx.merchant_id || tx.payee_id || t("externalAccount")}
                     </p>
                     <p className="text-slate-500">{new Date(tx.date).toLocaleDateString()}</p>
                   </div>
