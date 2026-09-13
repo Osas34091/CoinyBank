@@ -60,15 +60,13 @@ export default function Coin3D({ isSpeaking = false, isThinking = false }: Coin3
     // Eliminado el squash & stretch manual porque aplasta el rig del modelo 3D y lo deforma.
   });
 
-  // Auto-centramos el modelo y usamos Bounds para que quepa en la vista
+  // Ya no usamos Bounds ni Center porque el esqueleto (huesos) de Blender a veces
+  // engaña a estos componentes y hace que la cámara se mueva hacia arriba,
+  // causando el efecto de "verlo desde arriba".
   return (
-    <Bounds fit clip observe margin={1.2}>
-      <Center>
-        <group ref={group} rotation={[0, 0, 0]}>
-          <primitive object={scene} />
-        </group>
-      </Center>
-    </Bounds>
+    <group ref={group} rotation={[0, 0, 0]} position={[0, -1, 0]} scale={[1.8, 1.8, 1.8]}>
+      <primitive object={scene} />
+    </group>
   );
 }
 
