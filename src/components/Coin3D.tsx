@@ -2,7 +2,7 @@
 
 import { useRef, useEffect, useState } from "react";
 import { useFrame } from "@react-three/fiber";
-import { useGLTF, useAnimations, Clone, Outlines } from "@react-three/drei";
+import { useGLTF, useAnimations } from "@react-three/drei";
 import * as THREE from "three";
 
 interface Coin3DProps {
@@ -14,8 +14,8 @@ interface Coin3DProps {
 export default function Coin3D({ isSpeaking = false, isThinking = false, isJumping = false }: Coin3DProps) {
   const group = useRef<THREE.Group>(null);
   
-  // Usar el nuevo modelo V3 (coinity)
-  const { scene, animations } = useGLTF("/Coinity.glb");
+  // Usar el nuevo modelo V4 (CoinityV2)
+  const { scene, animations } = useGLTF("/CoinityV2.glb");
   const { actions } = useAnimations(animations, group);
 
   // Stop all animations gracefully
@@ -70,9 +70,9 @@ export default function Coin3D({ isSpeaking = false, isThinking = false, isJumpi
 
   return (
     <group ref={group} rotation={[0, 0, 0]} position={[0, -1.1, 0]} scale={[0.5, 0.5, 0.5]}>
-      <Clone object={scene} inject={<Outlines thickness={3} color="black" screenspace />} />
+      <primitive object={scene} />
     </group>
   );
 }
 
-useGLTF.preload("/Coinity.glb");
+useGLTF.preload("/CoinityV2.glb");
