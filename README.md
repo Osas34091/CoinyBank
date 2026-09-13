@@ -1,36 +1,116 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+<div align="center">
+  <p align="center">
+  <img src="public/onecent-roll.png" alt="CoinyBank Logo" width="200">
+</p>
+  <p><strong>The Next-Generation AI Financial Assistant for Seniors</strong></p>
+  <p>
+    <a href="https://github.com/Osas34091/CoinyBank/actions"><img alt="Build Status" src="https://img.shields.io/github/actions/workflow/status/Osas34091/CoinyBank/main.yml?style=flat-square"></a>
+    <img alt="Next.js" src="https://img.shields.io/badge/Next.js-14-black?style=flat-square&logo=next.js">
+    <img alt="React" src="https://img.shields.io/badge/React-18-61DAFB?style=flat-square&logo=react">
+    <img alt="TypeScript" src="https://img.shields.io/badge/TypeScript-007ACC?style=flat-square&logo=typescript">
+    <img alt="Three.js" src="https://img.shields.io/badge/Three.js-R3F-black?style=flat-square&logo=three.js">
+    <img alt="Ollama" src="https://img.shields.io/badge/Ollama-AI-white?style=flat-square">
+  </p>
+</div>
 
-## Getting Started
+CoinyBank is a modern, accessible web banking prototype designed specifically for seniors. It features **Coiny**, an interactive 3D AI assistant that lives on the screen, ready to help users navigate their finances using natural voice commands or text, powered by local LLMs (Ollama) and the Capital One Nessie API.
 
-First, run the development server:
+---
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+## 🌟 Features
+
+- **Interactive 3D Mascot (Coiny)** — A fully animated 3D coin built with React Three Fiber. Coiny wanders the screen, jumps, idles, and reacts to user interactions.
+- **AI Financial Assistant** — Powered by Ollama, Coiny answers questions strictly based on real user data. He never hallucinates numbers and always provides accurate financial advice.
+- **Voice-to-Text Recognition** — Users can speak directly to Coiny using their microphone. The system automatically detects silence (5 seconds) and processes the query.
+- **Capital One Nessie API Integration** — Real-time fetching of mock banking data including Accounts, Bills, Loans, and Transactions.
+- **Fully Bilingual (i18n)** — Seamless switching between English and Spanish (`next-intl`), including Coiny's voice synthesis (TTS) and UI elements.
+- **Accessible & Senior-Friendly UI** — Large text, clear contrasts, and intuitive navigation. No complex menus; Coiny does the heavy lifting.
+
+---
+
+## 🏗️ Architecture
+
+```mermaid
+graph TD
+    subgraph Frontend [Next.js Client]
+        UI[Dashboard UI]
+        Coin3D[Coiny 3D Model\nReact Three Fiber]
+        Assistant[Coiny Assistant Logic\nFramer Motion]
+        Audio[Voice Recognition & TTS]
+    end
+
+    subgraph Backend [Next.js API Routes]
+        ChatAPI[/api/chat]
+        TTSAPI[/api/tts]
+    end
+
+    subgraph External Services
+        Ollama[Ollama LLM\nLlama 3]
+        Nessie[Capital One\nNessie API]
+    end
+
+    UI --> Assistant
+    Assistant --> Coin3D
+    Audio -->|Speech-to-Text| Assistant
+    Assistant -->|User Prompt| ChatAPI
+    ChatAPI -->|Fetch Data| Nessie
+    ChatAPI -->|Prompt + Context| Ollama
+    Ollama -->|JSON Response| ChatAPI
+    ChatAPI -->|Reply| Assistant
+    Assistant -->|Text| TTSAPI
+    TTSAPI -->|Audio Stream| Audio
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+---
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## 🚀 Installation & Setup
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+1. **Clone the repository:**
+   ```bash
+   git clone https://github.com/Osas34091/CoinyBank.git
+   cd CoinyBank
+   ```
 
-## Learn More
+2. **Install dependencies:**
+   ```bash
+   npm install
+   ```
 
-To learn more about Next.js, take a look at the following resources:
+3. **Environment Variables:**
+   Create a `.env.local` file in the root directory and add your Nessie API Key and Ollama URL:
+   ```env
+   NESSIE_API_KEY=your_nessie_api_key_here
+   NEXT_PUBLIC_OLLAMA_URL=http://localhost:11434
+   ```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+4. **Run Ollama Locally:**
+   Make sure you have [Ollama](https://ollama.com/) installed and running with a model (e.g., `llama3`):
+   ```bash
+   ollama run llama3
+   ```
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+5. **Start the Development Server:**
+   ```bash
+   npm run dev
+   ```
+   Open [http://localhost:3000](http://localhost:3000) in your browser.
 
-## Deploy on Vercel
+---
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## 🤖 Coiny 3D States & Animations
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Coiny's logic is driven by a custom State Machine in `Coin3D.tsx`:
+
+| State | Trigger | Animation Played |
+|---------|-------|-------------|
+| **Entrance** | On component mount | `Entrance` (Drops in from the side) |
+| **Idle** | User inactive | `Looking` or `Flip` (Random every 3-4s) |
+| **Thinking** | Waiting for LLM | `Thinking` (Rubbing chin) |
+| **Speaking** | Playing TTS Audio | Base Pose + Squash & Stretch scaling |
+| **Jumping** | Wandering or Dragging | `Jump` (Arc movement via Framer Motion) |
+
+---
+
+## 📄 License
+
+This project was built for the Capital One Hackathon.
