@@ -4,7 +4,6 @@
 </p>
   <p><strong>The Next-Generation AI Financial Assistant for Seniors</strong></p>
   <p>
-    <a href="https://github.com/Osas34091/CoinyBank/actions"><img alt="Build Status" src="https://img.shields.io/github/actions/workflow/status/Osas34091/CoinyBank/main.yml?style=flat-square"></a>
     <img alt="Next.js" src="https://img.shields.io/badge/Next.js-14-black?style=flat-square&logo=next.js">
     <img alt="React" src="https://img.shields.io/badge/React-18-61DAFB?style=flat-square&logo=react">
     <img alt="TypeScript" src="https://img.shields.io/badge/TypeScript-007ACC?style=flat-square&logo=typescript">
