@@ -363,8 +363,30 @@ export default function CoinyAssistant() {
     }
   };
 
+  const recognitionRef = useRef<any>(null);
+  const silenceTimeoutRef2 = useRef<NodeJS.Timeout | null>(null);
+  const currentTranscriptRef = useRef<string>("");
+
+  const stopRecognition = () => {
+    if (silenceTimeoutRef2.current) clearTimeout(silenceTimeoutRef2.current);
+    if (recognitionRef.current) {
+      recognitionRef.current.stop();
+      recognitionRef.current = null;
+    }
+    setIsListening(false);
+    
+    if (currentTranscriptRef.current.trim()) {
+      handleOptionClick("dynamic", currentTranscriptRef.current.trim());
+      currentTranscriptRef.current = "";
+    }
+  };
+
   const toggleMic = () => {
-    if (isListening) return; // If already listening, do nothing (user can't cancel via same button easily right now)
+    if (isListening) {
+      // Manual stop
+      stopRecognition();
+      return;
+    }
     
     // Check if SpeechRecognition API exists
     const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
@@ -382,23 +404,44 @@ export default function CoinyAssistant() {
     }
 
     const recognition = new SpeechRecognition();
+    recognitionRef.current = recognition;
+    currentTranscriptRef.current = "";
+    
     recognition.lang = locale === 'en' ? 'en-US' : 'es-MX';
-    recognition.interimResults = false;
+    recognition.continuous = true;
+    recognition.interimResults = true;
     recognition.maxAlternatives = 1;
 
     recognition.onstart = () => {
       setIsListening(true);
       setCurrentMessage(null);
+      
+      // Start initial silence timeout just in case they don't say anything
+      if (silenceTimeoutRef2.current) clearTimeout(silenceTimeoutRef2.current);
+      silenceTimeoutRef2.current = setTimeout(stopRecognition, 5000);
     };
 
     recognition.onresult = (event: any) => {
-      const transcript = event.results[0][0].transcript;
-      setIsListening(false);
-      handleOptionClick("dynamic", transcript);
+      let finalTranscript = "";
+      for (let i = event.resultIndex; i < event.results.length; ++i) {
+        if (event.results[i].isFinal) {
+          finalTranscript += event.results[i][0].transcript;
+        } else {
+          finalTranscript += event.results[i][0].transcript;
+        }
+      }
+      
+      currentTranscriptRef.current = finalTranscript;
+      
+      // Reset the silence timeout
+      if (silenceTimeoutRef2.current) clearTimeout(silenceTimeoutRef2.current);
+      silenceTimeoutRef2.current = setTimeout(stopRecognition, 5000);
     };
 
     recognition.onerror = (event: any) => {
       console.error("Speech recognition error", event.error);
+      if (silenceTimeoutRef2.current) clearTimeout(silenceTimeoutRef2.current);
+      recognitionRef.current = null;
       setIsListening(false);
       // Fallback
       setCurrentMessage({
@@ -410,13 +453,17 @@ export default function CoinyAssistant() {
     };
 
     recognition.onend = () => {
-      setIsListening(false);
+      // Only handle if it stopped on its own (not manually stopped by us)
+      if (isListening && recognitionRef.current) {
+        stopRecognition();
+      }
     };
 
     try {
       recognition.start();
     } catch (e) {
       console.error("Failed to start speech recognition:", e);
+      recognitionRef.current = null;
       setIsListening(false);
       setCurrentMessage({
         message: t("voiceError"),
