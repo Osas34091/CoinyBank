@@ -57,23 +57,14 @@ export default function Coin3D({ isSpeaking = false, isThinking = false }: Coin3
   }, [isThinking, actions]);
 
   useFrame((state, delta) => {
-    if (group.current) {
-      // Si está hablando, hacer un pequeño squash & stretch
-      if (isSpeaking) {
-        const scaleFactor = 1 + Math.sin(state.clock.elapsedTime * 15) * 0.05;
-        group.current.scale.set(1, scaleFactor, 1);
-      } else {
-        group.current.scale.set(1, 1, 1);
-      }
-    }
+    // Eliminado el squash & stretch manual porque aplasta el rig del modelo 3D y lo deforma.
   });
 
   // Auto-centramos el modelo y usamos Bounds para que quepa en la vista
   return (
     <Bounds fit clip observe margin={1.2}>
       <Center>
-        {/* Rotamos un poco más fuerte hacia atrás para compensar el ángulo */}
-        <group ref={group} rotation={[-0.45, 0, 0]}>
+        <group ref={group} rotation={[0, 0, 0]}>
           <primitive object={scene} />
         </group>
       </Center>
