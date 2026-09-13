@@ -37,7 +37,8 @@ export interface Transaction {
   payee_id: string;
   amount: number;
   status: string;
-  transaction_date: string;
+  transaction_date?: string;
+  purchase_date?: string;
   description: string;
 }
 
