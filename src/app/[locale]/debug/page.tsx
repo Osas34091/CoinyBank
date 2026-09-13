@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { Canvas } from "@react-three/fiber";
-import { useGLTF, useAnimations, OrbitControls } from "@react-three/drei";
+import { useGLTF, useAnimations, Clone } from "@react-three/drei";
 import * as THREE from "three";
 
 function DebugModel({ rotX, rotY, rotZ, scale, posY, posZ }: { rotX: number, rotY: number, rotZ: number, scale: number, posY: number, posZ: number }) {
@@ -19,7 +19,7 @@ function DebugModel({ rotX, rotY, rotZ, scale, posY, posZ }: { rotX: number, rot
 
   return (
     <group rotation={[rotX, rotY, rotZ]} position={[0, posY, posZ]} scale={[scale, scale, scale]}>
-      <primitive object={scene} />
+      <Clone object={scene} />
     </group>
   );
 }
