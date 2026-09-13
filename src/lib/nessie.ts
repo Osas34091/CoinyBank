@@ -189,5 +189,35 @@ export const nessieService = {
       console.warn("⚠️ NESSIE OFFLINE: Retornando IDs simulados para que no falle la app.");
       return { customerId: "mock-cust-123", accountId: "mock-acc-456" };
     }
+  },
+
+  async getDashboardData() {
+    const { customerId, accountId } = await this.ensureSeedData();
+    const customer = await this.getCustomer(customerId);
+    const accounts = await this.getCustomerAccounts(customerId);
+    const purchases = await this.getAccountPurchases(accountId);
+    const mainAccount = accounts.find((a: any) => a._id === accountId) || accounts[0];
+
+    return {
+      customer: {
+        firstName: customer.first_name,
+        lastName: customer.last_name,
+      },
+      account: {
+        id: mainAccount._id,
+        balance: mainAccount.balance,
+        type: mainAccount.type,
+        nickname: mainAccount.nickname
+      },
+      transactions: purchases.map((p: any) => ({
+        id: p._id,
+        amount: p.amount,
+        date: p.purchase_date,
+        description: p.description,
+        status: p.status,
+        type: "purchase",
+        payee_id: p.payee_id
+      }))
+    };
   }
 };
