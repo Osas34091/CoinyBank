@@ -14,8 +14,8 @@ interface Coin3DProps {
 export default function Coin3D({ isSpeaking = false, isThinking = false, isJumping = false }: Coin3DProps) {
   const group = useRef<THREE.Group>(null);
   
-  // Usar el nuevo modelo V2
-  const { scene, animations } = useGLTF("/FinalCoinyV2.glb");
+  // Usar el nuevo modelo V3 (coinity)
+  const { scene, animations } = useGLTF("/coinity.glb");
   const { actions } = useAnimations(animations, group);
 
   // Stop all animations gracefully
@@ -29,8 +29,6 @@ export default function Coin3D({ isSpeaking = false, isThinking = false, isJumpi
 
   // State Machine
   useEffect(() => {
-    let timeout: NodeJS.Timeout;
-    
     const playAnim = (name: string, loop: boolean = false) => {
       const action = actions[name];
       if (action) {
@@ -43,40 +41,17 @@ export default function Coin3D({ isSpeaking = false, isThinking = false, isJumpi
       return null;
     };
 
-    if (isJumping) {
-      // 1. Jumping (Split / Parabola)
-      playAnim("Split", true); // Loop the jump pose until landing
-      return;
-    }
-
     if (isThinking) {
-      // 2. Thinking
+      // 1. Thinking
       playAnim("Thinking", true);
       return;
     }
 
-    if (isSpeaking) {
-      // Detenemos todas las animaciones para que se quede en su pose base completamente quieto
-      // El squash & stretch en el useFrame hará el efecto de hablar.
-      stopAll();
-      return;
-    }
+    // 2. Idle / Speaking / Jumping
+    // El nuevo modelo solo tiene la animación Thinking, así que lo detenemos
+    // para que vuelva a su "T-Pose" o pose base.
+    stopAll();
 
-    // 3. Idle (Strictly when quiet and not jumping)
-    const playIdle = () => {
-      const idles = ["BaseRig", "Feet", "Salto360"];
-      const randomIdle = idles[Math.floor(Math.random() * idles.length)];
-      const action = playAnim(randomIdle, false);
-      
-      const animDuration = action ? action.getClip().duration * 1000 : 1000;
-      const cooldown = Math.random() * 4000 + 3000; // 3 a 7 segundos de cooldown
-      
-      timeout = setTimeout(playIdle, animDuration + cooldown);
-    };
-
-    playIdle();
-
-    return () => clearTimeout(timeout);
   }, [isJumping, isThinking, isSpeaking, actions]);
 
   // Squash & Stretch para hablar
@@ -100,4 +75,4 @@ export default function Coin3D({ isSpeaking = false, isThinking = false, isJumpi
   );
 }
 
-useGLTF.preload("/FinalCoinyV2.glb");
+useGLTF.preload("/coinity.glb");
