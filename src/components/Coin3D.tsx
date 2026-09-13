@@ -15,7 +15,7 @@ export default function Coin3D({ isSpeaking = false, isThinking = false, isJumpi
   const group = useRef<THREE.Group>(null);
   
   // Usar el nuevo modelo V3 (coinity)
-  const { scene, animations } = useGLTF("/coinity.glb");
+  const { scene, animations } = useGLTF("/Coinity.glb");
   const { actions } = useAnimations(animations, group);
 
   // Stop all animations gracefully
@@ -75,4 +75,4 @@ export default function Coin3D({ isSpeaking = false, isThinking = false, isJumpi
   );
 }
 
-useGLTF.preload("/coinity.glb");
+useGLTF.preload("/Coinity.glb");
