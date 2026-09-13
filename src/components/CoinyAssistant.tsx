@@ -205,6 +205,10 @@ export default function CoinyAssistant() {
       setCurrentMessage(null);
     };
     
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, [currentMessage, isThinking]);
+    
   // WANDERING LOGIC
   const resetWanderTimer = () => {
     lastActivityTime.current = Date.now();
