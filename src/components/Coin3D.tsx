@@ -72,7 +72,8 @@ export default function Coin3D({ isSpeaking = false, isThinking = false }: Coin3
   return (
     <Bounds fit clip observe margin={1.2}>
       <Center>
-        <group ref={group}>
+        {/* Rotamos ligeramente en X (ej. -0.2 o -0.3 radianes) para corregir la inclinación y que se vea más de frente */}
+        <group ref={group} rotation={[-0.2, 0, 0]}>
           <primitive object={scene} />
         </group>
       </Center>
