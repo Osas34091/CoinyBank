@@ -97,16 +97,19 @@ export default function CoinyAssistant() {
       setIsRightSide(endX > width / 2);
       
       // Entrance Jump from right side
-      // Start slightly off-screen so the model is visible immediately when moving
-      const startX = width + 150; 
-      controls.set({ x: startX, y: endY });
+      // Start slightly off-screen, invisible
+      const startX = width + 50; 
+      controls.set({ x: startX, y: endY, opacity: 0 });
       
+      // Wait longer before entering
       setTimeout(() => {
         setIsEntering(true);
         controls.start({
+          opacity: 1,
           x: endX,
           y: endY,
           transition: { 
+            opacity: { duration: 0 }, // Instant visibility at frame 1
             x: { duration: 1.2, ease: "easeOut" }
           }
         }).then(() => {
@@ -118,7 +121,7 @@ export default function CoinyAssistant() {
           });
           resetWanderTimer();
         });
-      }, 500);
+      }, 1500);
 
       return () => window.removeEventListener('resize', handleResize);
     }
