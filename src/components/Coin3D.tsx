@@ -14,7 +14,7 @@ export default function Coin3D({ isSpeaking = false, isThinking = false }: Coin3
   const group = useRef<THREE.Group>(null);
   
   // Carga el GLB desde la carpeta public
-  const { scene, animations } = useGLTF("/FinalCoiny.glb");
+  const { scene, animations } = useGLTF("/Coiny.glb");
   const { actions } = useAnimations(animations, group);
 
   useEffect(() => {
@@ -71,4 +71,4 @@ export default function Coin3D({ isSpeaking = false, isThinking = false }: Coin3
 }
 
 // Precargar el modelo para que no haya flash al instanciar
-useGLTF.preload("/FinalCoiny.glb");
+useGLTF.preload("/Coiny.glb");
