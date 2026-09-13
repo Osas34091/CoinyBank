@@ -56,8 +56,9 @@ export default function Coin3D({ isSpeaking = false, isThinking = false, isJumpi
     }
 
     if (isSpeaking) {
-      // Solo BaseRig fijo, porque el useFrame se encarga de estirarlo/achicarlo
-      playAnim("BaseRig", true);
+      // Detenemos todas las animaciones para que se quede en su pose base completamente quieto
+      // El squash & stretch en el useFrame hará el efecto de hablar.
+      stopAll();
       return;
     }
 
