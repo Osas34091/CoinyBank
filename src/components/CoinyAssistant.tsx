@@ -27,12 +27,11 @@ export default function CoinyAssistant() {
   const [isSpeaking, setIsSpeaking] = useState(false);
   const controls = useAnimation();
   const [windowSize, setWindowSize] = useState({ width: 0, height: 0 });
+  const [isRightSide, setIsRightSide] = useState(true);
   
-  // Track position to calculate arcs and safe zones
   const posRef = useRef({ x: 0, y: 0 });
   const [currentMessage, setCurrentMessage] = useState<AssistantResponse | null>(null);
 
-  // Initialize window size and initial position
   useEffect(() => {
     if (typeof window !== 'undefined') {
       const width = window.innerWidth;
@@ -42,11 +41,13 @@ export default function CoinyAssistant() {
       const handleResize = () => setWindowSize({ width: window.innerWidth, height: window.innerHeight });
       window.addEventListener('resize', handleResize);
       
-      // Start in the center
-      posRef.current = { x: width / 2, y: height / 2 };
-      controls.set({ x: width / 2, y: height / 2 });
+      // Initial position bottom right
+      const startX = width - 150;
+      const startY = height - 150;
+      posRef.current = { x: startX, y: startY };
+      setIsRightSide(startX > width / 2);
+      controls.set({ x: startX, y: startY });
       
-      // Saludo inicial después de un segundo
       setTimeout(() => {
         jumpToSafeZone(() => {
           setCurrentMessage({
@@ -60,9 +61,7 @@ export default function CoinyAssistant() {
     }
   }, [controls]);
 
-  // FUNCIÓN CENTRAL DE HABLA Y AUDIO
   const speakAndAnimate = async (text: string, responseObj: AssistantResponse) => {
-    // 1. Reproducimos el audio
     try {
       const res = await fetch('/api/tts', {
         method: 'POST',
@@ -80,17 +79,14 @@ export default function CoinyAssistant() {
           setIsSpeaking(false);
           URL.revokeObjectURL(audioUrl);
         };
-        audio.play().catch(e => console.error("Error reproduciendo audio:", e));
+        audio.play().catch(e => console.error(e));
       }
     } catch (e) {
-      console.error("Error conectando con TTS:", e);
+      console.error(e);
     }
-
-    // 2. Mostramos el mensaje
     setCurrentMessage(responseObj);
   };
 
-  // Listener para los botones del Dashboard
   useEffect(() => {
     const handleWake = (e: any) => {
       const task = e.detail;
@@ -108,27 +104,51 @@ export default function CoinyAssistant() {
           setIsThinking(false);
           
           if (response.error) {
-            await speakAndAnimate("Parece que hubo un error de conexión.", { message: "Error de servidor: " + response.error, options: [] });
+            await speakAndAnimate("Parece que hubo un error.", { message: response.error, options: [] });
           } else {
             await speakAndAnimate(response.message, response);
           }
         } catch (err) {
           setIsThinking(false);
-          await speakAndAnimate("Ups, algo salió mal.", { message: "No pude conectar con el cerebro.", options: [] });
+          await speakAndAnimate("Ups, algo salió mal.", { message: "Error", options: [] });
         }
       }, 500);
     };
 
     window.addEventListener("coiny_wake", handleWake);
     return () => window.removeEventListener("coiny_wake", handleWake);
-  }, [controls, windowSize, locale]);
+  }, [locale]);
 
-  // [ELIMINADO] Función de Salto a Zona Segura
-  const jumpToSafeZone = async (callback: () => void) => {
-    callback(); // Directamente ejecuta el callback sin saltar
+  const jumpToSafeZone = async (callback?: () => void) => {
+    const margin = 200;
+    const { x, y } = posRef.current;
+    const { width, height } = windowSize;
+    
+    // Check if out of bounds (or near edge where bubble cuts off)
+    if (x < margin || x > width - margin || y < margin || y > height - margin) {
+      const safeX = Math.max(margin, Math.min(x, width - margin));
+      const safeY = Math.max(margin, Math.min(y, height - margin));
+      
+      await controls.start({
+        x: safeX,
+        y: safeY,
+        transition: { type: "spring", stiffness: 100, damping: 10 }
+      });
+      posRef.current = { x: safeX, y: safeY };
+      setIsRightSide(safeX > width / 2);
+    }
+    if (callback) callback();
   };
 
-  // [ELIMINADO] Lógica de mascota virtual (Wander y Hops)
+  const handleDragEnd = (e: any, info: any) => {
+    setIsDragging(false);
+    posRef.current = {
+      x: posRef.current.x + info.offset.x,
+      y: posRef.current.y + info.offset.y,
+    };
+    setIsRightSide(posRef.current.x > windowSize.width / 2);
+    jumpToSafeZone();
+  };
 
   const handleOptionClick = async (action: string, label: string) => {
     if (action === "ignore") {
@@ -165,22 +185,30 @@ export default function CoinyAssistant() {
   };
 
   return (
-    <div className="fixed bottom-12 right-12 z-50 pointer-events-none">
-      
+    <div className="fixed inset-0 z-50 pointer-events-none">
       <motion.div 
-        className="pointer-events-auto flex flex-col items-center justify-center relative"
+        drag
+        dragMomentum={false}
+        onDragStart={() => setIsDragging(true)}
+        onDragEnd={handleDragEnd}
+        animate={controls}
+        className="pointer-events-auto absolute flex flex-col items-center justify-center"
+        style={{ touchAction: 'none' }}
       >
         <AnimatePresence>
-          {/* Globo de diálogo adaptativo */}
           {currentMessage && (
             <motion.div 
               initial={{ opacity: 0, scale: 0.5, y: 20 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.5 }}
-              className="absolute bottom-full mb-6 bg-yellow-50 border-2 border-yellow-400 p-5 shadow-2xl w-72 sm:w-80"
-              style={{ borderRadius: '24px 24px 24px 4px' }}
+              className={`absolute bottom-full mb-6 bg-yellow-50 border-2 border-yellow-400 p-5 shadow-2xl w-72 sm:w-80 ${
+                isRightSide ? 'right-0 origin-bottom-right' : 'left-0 origin-bottom-left'
+              }`}
+              style={{ borderRadius: isRightSide ? '24px 24px 4px 24px' : '24px 24px 24px 4px' }}
             >
-              <div className="absolute -bottom-3 left-10 w-6 h-6 bg-yellow-50 border-b-2 border-r-2 border-yellow-400 transform rotate-45" />
+              <div className={`absolute -bottom-3 w-6 h-6 bg-yellow-50 border-b-2 border-r-2 border-yellow-400 transform rotate-45 ${
+                isRightSide ? 'right-10' : 'left-10'
+              }`} />
 
               <div className="relative z-10">
                 <p className="text-xl font-medium text-slate-800 mb-5 leading-snug">
@@ -209,19 +237,24 @@ export default function CoinyAssistant() {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              className="absolute bottom-full mb-4 bg-white border-2 border-slate-200 px-4 py-2 rounded-full shadow-lg flex gap-2 items-center"
+              className={`absolute bottom-full mb-4 bg-white border-2 border-slate-200 px-4 py-2 shadow-lg flex gap-2 items-center ${
+                isRightSide ? 'right-0 origin-bottom-right' : 'left-0 origin-bottom-left'
+              }`}
+              style={{ borderRadius: isRightSide ? '24px 24px 4px 24px' : '24px 24px 24px 4px' }}
             >
               <div className="w-3 h-3 bg-slate-400 rounded-full animate-bounce" />
               <div className="w-3 h-3 bg-slate-400 rounded-full animate-bounce delay-100" />
               <div className="w-3 h-3 bg-slate-400 rounded-full animate-bounce delay-200" />
+              <div className={`absolute -bottom-2 w-4 h-4 bg-white border-b-2 border-r-2 border-slate-200 transform rotate-45 ${
+                isRightSide ? 'right-6' : 'left-6'
+              }`} />
             </motion.div>
           )}
         </AnimatePresence>
 
-        {/* Personaje */}
-        <div className="relative group cursor-pointer">
+        <div className="relative group cursor-grab active:cursor-grabbing">
           <button 
-            onClick={toggleMic}
+            onClick={(e) => { e.stopPropagation(); toggleMic(); }}
             className={`absolute -left-16 top-1/2 -translate-y-1/2 p-3 rounded-full shadow-md transition-all ${isListening ? 'bg-red-500 text-white animate-pulse scale-110' : 'bg-white text-slate-400 opacity-0 group-hover:opacity-100 hover:text-blue-500 hover:bg-blue-50'}`}
             aria-label="Hablar con el asistente"
           >
@@ -230,14 +263,13 @@ export default function CoinyAssistant() {
 
           <motion.div
             onClick={() => {
-              if (!currentMessage && !isThinking) {
-                controls.stop(); 
+              if (!isDragging && !currentMessage && !isThinking) {
                 jumpToSafeZone(() => {
                   setCurrentMessage({
                     message: "¿Me llamaste? ¿Qué se te ofrece?",
                     options: [
                       { label: t("btnBalance"), action: "summary" },
-                      { label: "Sigue paseando", action: "ignore" }
+                      { label: "Nada, sigue paseando", action: "ignore" }
                     ]
                   });
                 });
@@ -247,7 +279,6 @@ export default function CoinyAssistant() {
             whileTap={{ scale: 0.9 }}
             className="w-28 h-32 flex flex-col items-center justify-center relative"
           >
-            {/* Renderizador WebGL (3D) de la moneda */}
             <div className="w-full h-full pointer-events-none">
               <Canvas camera={{ position: [0, 0, 1], fov: 40 }}>
                 <ambientLight intensity={1.5} />
@@ -261,3 +292,4 @@ export default function CoinyAssistant() {
     </div>
   );
 }
+
