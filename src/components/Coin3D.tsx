@@ -10,13 +10,14 @@ interface Coin3DProps {
   isThinking?: boolean;
   isJumping?: boolean; // When true, play Jump.
   isEntering?: boolean;
+  isDragging?: boolean;
 }
 
-export default function Coin3D({ isSpeaking = false, isThinking = false, isJumping = false, isEntering = false }: Coin3DProps) {
+export default function Coin3D({ isSpeaking = false, isThinking = false, isJumping = false, isEntering = false, isDragging = false }: Coin3DProps) {
   const group = useRef<THREE.Group>(null);
   
-  // Usar el nuevo modelo V6 (CoinityV4)
-  const { scene, animations } = useGLTF("/CoinityV4.glb");
+  // Usar el nuevo modelo V7 (CoinityV5)
+  const { scene, animations } = useGLTF("/CoinityV5.glb");
   const { actions } = useAnimations(animations, group);
 
   // Stop all animations gracefully
@@ -34,7 +35,7 @@ export default function Coin3D({ isSpeaking = false, isThinking = false, isJumpi
 
   // Random idle animations
   useEffect(() => {
-    const isBusy = isEntering || isJumping || isThinking || isSpeaking;
+    const isBusy = isEntering || isJumping || isThinking || isSpeaking || isDragging;
     
     if (isBusy) {
       if (idleTimeoutRef.current) clearTimeout(idleTimeoutRef.current);
@@ -85,6 +86,11 @@ export default function Coin3D({ isSpeaking = false, isThinking = false, isJumpi
       return;
     }
     
+    if (isDragging) {
+      playAnim("Grab", true);
+      return;
+    }
+    
     if (isJumping) {
       playAnim("Jump", true);
       return;
@@ -126,4 +132,4 @@ export default function Coin3D({ isSpeaking = false, isThinking = false, isJumpi
   );
 }
 
-useGLTF.preload("/CoinityV4.glb");
+useGLTF.preload("/CoinityV5.glb");

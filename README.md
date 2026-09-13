@@ -34,19 +34,19 @@ CoinyBank is a modern, accessible web banking prototype designed specifically fo
 graph TD
     subgraph Frontend [Next.js Client]
         UI[Dashboard UI]
-        Coin3D[Coiny 3D Model\nReact Three Fiber]
-        Assistant[Coiny Assistant Logic\nFramer Motion]
+        Coin3D[Coiny 3D Model / React Three Fiber]
+        Assistant[Coiny Assistant Logic / Framer Motion]
         Audio[Voice Recognition & TTS]
     end
 
     subgraph Backend [Next.js API Routes]
-        ChatAPI[/api/chat]
-        TTSAPI[/api/tts]
+        ChatAPI["/api/chat"]
+        TTSAPI["/api/tts"]
     end
 
     subgraph External Services
-        Ollama[Ollama LLM\nLlama 3]
-        Nessie[Capital One\nNessie API]
+        Ollama[Ollama LLM - Llama 3]
+        Nessie[Capital One - Nessie API]
     end
 
     UI --> Assistant
