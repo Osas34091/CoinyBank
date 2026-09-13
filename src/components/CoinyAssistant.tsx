@@ -538,14 +538,6 @@ export default function CoinyAssistant() {
             <Mic className="w-5 h-5" />
           </button>
 
-          <button 
-            onClick={(e) => { e.stopPropagation(); toggleSide(); }}
-            className={`absolute -right-12 top-1/2 -translate-y-1/2 p-3 rounded-full shadow-md transition-all z-10 bg-white text-slate-400 opacity-0 group-hover:opacity-100 hover:text-blue-500 hover:bg-blue-50`}
-            aria-label="Cambiar de lado"
-          >
-            <ArrowLeftRight className="w-5 h-5" />
-          </button>
-
           <motion.div
             onClick={() => {
               lastActivityTime.current = Date.now();
