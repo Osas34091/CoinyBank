@@ -59,14 +59,14 @@ export default function Coin3D({ isSpeaking = false, isThinking = false }: Coin3
   useFrame((state, delta) => {
     if (group.current) {
       if (isSpeaking) {
-        // Restauramos el "yapeo" (squash & stretch manual) para cuando habla
+        // Restauramos el "yapeo" (squash & stretch manual) para cuando habla, 20% más lento
         const t = state.clock.getElapsedTime();
-        const scaleY = 0.55 + Math.sin(t * 25) * 0.08;
-        const scaleXZ = 0.55 - Math.sin(t * 25) * 0.04;
+        const scaleY = 0.5 + Math.sin(t * 20) * 0.08;
+        const scaleXZ = 0.5 - Math.sin(t * 20) * 0.04;
         group.current.scale.set(scaleXZ, scaleY, scaleXZ);
       } else {
         // Escala normal si no está hablando
-        group.current.scale.set(0.55, 0.55, 0.55);
+        group.current.scale.set(0.5, 0.5, 0.5);
       }
     }
   });
@@ -75,7 +75,7 @@ export default function Coin3D({ isSpeaking = false, isThinking = false }: Coin3
   // engaña a estos componentes y hace que la cámara se mueva hacia arriba,
   // causando el efecto de "verlo desde arriba".
   return (
-    <group ref={group} rotation={[0, 0, 0]} position={[0, -1.3, 0]} scale={[0.55, 0.55, 0.55]}>
+    <group ref={group} rotation={[0, 0, 0]} position={[0, -1.1, 0]} scale={[0.5, 0.5, 0.5]}>
       <primitive object={scene} />
     </group>
   );
