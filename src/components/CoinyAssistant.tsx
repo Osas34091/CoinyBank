@@ -116,8 +116,8 @@ export default function CoinyAssistant() {
           }
         });
 
-        // Darle 4 segundos completos a la animación para que reproduzca sus frames 
-        // antes de detenerla y mostrar el mensaje. (Como el desplazamiento ahora toma 4s, esto empata perfecto)
+        // Darle 6 segundos completos a la animación para que reproduzca sus frames 
+        // antes de detenerla y mostrar el mensaje.
         setTimeout(() => {
           setIsEntering(false);
           setCurrentMessage({
@@ -617,8 +617,9 @@ export default function CoinyAssistant() {
               lastActivityTime.current = Date.now();
               if (!isDragging && !currentMessage && !isThinking) {
                 jumpToSafeZone(() => {
+                  const randomWake = Math.floor(Math.random() * 10) + 1;
                   setCurrentMessage({
-                    message: t("wakeMsg"),
+                    message: t(`wakeMsg${randomWake}`),
                     options: getWakeOptions(),
                     msgKey: 'wake'
                   });
