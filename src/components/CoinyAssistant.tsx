@@ -31,6 +31,7 @@ export default function CoinyAssistant() {
   const [isRightSide, setIsRightSide] = useState(true);
   
   const posRef = useRef({ x: 0, y: 0 });
+  const audioRef = useRef<HTMLAudioElement | null>(null);
   const [currentMessage, setCurrentMessage] = useState<AssistantResponse | null>(null);
 
   const getWakeOptions = () => {
@@ -104,6 +105,12 @@ export default function CoinyAssistant() {
   }, [controls, t]);
 
   const speakAndAnimate = async (text: string, responseObj: AssistantResponse) => {
+    if (audioRef.current) {
+      audioRef.current.pause();
+      audioRef.current.currentTime = 0;
+      setIsSpeaking(false);
+    }
+    
     try {
       const res = await fetch('/api/tts', {
         method: 'POST',
@@ -115,6 +122,7 @@ export default function CoinyAssistant() {
         const audioBlob = await res.blob();
         const audioUrl = URL.createObjectURL(audioBlob);
         const audio = new Audio(audioUrl);
+        audioRef.current = audio;
         
         audio.onplay = () => setIsSpeaking(true);
         audio.onended = () => {
@@ -171,6 +179,12 @@ export default function CoinyAssistant() {
       const target = e.target as HTMLElement;
       if (target.closest('#coiny-assistant-container')) return;
       
+      if (audioRef.current) {
+        audioRef.current.pause();
+        audioRef.current.currentTime = 0;
+        setIsSpeaking(false);
+      }
+      
       setCurrentMessage(null);
     };
     
@@ -210,6 +224,12 @@ export default function CoinyAssistant() {
   };
 
   const handleOptionClick = async (action: string, label: string) => {
+    if (audioRef.current) {
+      audioRef.current.pause();
+      audioRef.current.currentTime = 0;
+      setIsSpeaking(false);
+    }
+    
     if (action === "ignore") {
       setCurrentMessage(null);
       return;

@@ -56,17 +56,7 @@ export default function Coin3D({ isSpeaking = false, isThinking = false }: Coin3
     return () => clearTimeout(timeout);
   }, [isThinking, actions]);
 
-  useFrame((state, delta) => {
-    if (group.current) {
-      // Si está hablando, hacer un pequeño squash & stretch
-      if (isSpeaking) {
-        const scaleFactor = 1 + Math.sin(state.clock.elapsedTime * 15) * 0.05;
-        group.current.scale.set(1, scaleFactor, 1);
-      } else {
-        group.current.scale.set(1, 1, 1);
-      }
-    }
-  });
+  // useFrame scale manual removido para no interferir con el BaseRig
 
   // Auto-centramos el modelo y usamos Bounds para que quepa en la vista
   return (
