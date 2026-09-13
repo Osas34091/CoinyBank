@@ -242,9 +242,10 @@ export default function CoinyAssistant() {
               }`} />
 
               <div className="relative z-10">
-                <p className="text-xl font-medium text-slate-800 mb-5 leading-snug">
-                  {currentMessage.message}
-                </p>
+                <div 
+                  className="text-lg font-medium text-slate-800 mb-5 leading-snug [&>ul]:list-disc [&>ul]:pl-5 [&>ul]:mt-2 [&>ul>li]:mb-1 [&>b]:text-blue-700"
+                  dangerouslySetInnerHTML={{ __html: currentMessage.message }}
+                />
                 
                 <div className="flex flex-col gap-3">
                   {(currentMessage.options || []).map((opt, i) => (

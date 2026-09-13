@@ -25,7 +25,7 @@ ${context.recentTransactions.map((tx: any) => `  * ${tx.type === 'deposit' ? '+'
 
 Rules:
 1. You MUST respond in ${isEn ? 'English' : 'Spanish'}.
-2. Keep your response brief, conversational, and energetic. Max 3 sentences.
+2. Keep your response conversational and energetic. If listing data (like transactions), format it beautifully using HTML tags (<ul>, <li>, <b>, <br>). DO NOT use markdown, ONLY HTML tags inside the message string.
 3. You must output EXACTLY a valid JSON object with NO markdown wrapping, NO formatting, and NO extra text outside the JSON.
 4. The JSON must match this structure:
 {
