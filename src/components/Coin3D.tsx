@@ -64,7 +64,7 @@ export default function Coin3D({ isSpeaking = false, isThinking = false }: Coin3
   return (
     <Bounds fit clip observe margin={1.2}>
       <Center>
-        <group ref={group} rotation={[0, 0, 0]}>
+        <group ref={group} rotation={[-0.25, 0, 0]}>
           <primitive object={scene} />
         </group>
       </Center>
