@@ -16,9 +16,13 @@
   "Transactions": {
     "back": "Volver al Inicio",
     "title": "Últimos Movimientos",
+    "description": "Aquí podrás ver el historial de tus compras y depósitos.",
+    "noTransactions": "No tienes movimientos recientes.",
     "loading": "Cargando movimientos...",
     "purchase": "Compra",
-    "deposit": "Depósito"
+    "deposit": "Depósito",
+    "to": "a",
+    "externalAccount": "Cuenta Externa"
   },
   "Cards": {
     "back": "Volver al Inicio",

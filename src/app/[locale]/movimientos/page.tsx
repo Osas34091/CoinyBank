@@ -1,26 +1,19 @@
-"use client";
 import { ArrowLeft } from "lucide-react";
-import { useState, useEffect } from "react";
-import { useTranslations } from "next-intl";
+import { getTranslations } from "next-intl/server";
 import { Link } from "@/i18n/routing";
+import { nessieService } from "@/lib/nessie";
 
-export default function MovimientosPage() {
-  const t = useTranslations("Transactions");
-  const [transactions, setTransactions] = useState<any[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
+export default async function MovimientosPage() {
+  const t = await getTranslations("Transactions");
+  
+  let transactions: any[] = [];
+  try {
+    const data = await nessieService.getDashboardData();
+    transactions = data.transactions || [];
+  } catch (err) {
+    console.error("Failed to load transactions", err);
+  }
 
-  useEffect(() => {
-    fetch('/api/nessie')
-      .then(res => res.json())
-      .then(data => {
-        setTransactions(data.transactions || []);
-        setIsLoading(false);
-      })
-      .catch(err => {
-        console.error(err);
-        setIsLoading(false);
-      });
-  }, []);
   return (
     <main className="min-h-screen bg-slate-50 p-6 md:p-12 pb-32">
       <div className="max-w-4xl mx-auto space-y-6">
@@ -30,19 +23,17 @@ export default function MovimientosPage() {
         <h1 className="text-3xl font-extrabold text-slate-800 mb-6">{t("title")}</h1>
         
         <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-6">
-          <p className="text-xl text-slate-600 mb-6">Aquí podrás ver el historial de tus compras y depósitos.</p>
+          <p className="text-xl text-slate-600 mb-6">{t("description")}</p>
           
           <ul className="space-y-4">
-            {isLoading ? (
-              <p className="text-slate-500">{t("loading")}</p>
-            ) : transactions.length === 0 ? (
-              <p>No tienes movimientos recientes.</p>
+            {transactions.length === 0 ? (
+              <p>{t("noTransactions")}</p>
             ) : (
-              transactions.map((tx, idx) => (
+              transactions.map((tx: any, idx: number) => (
                 <li key={idx} className="flex justify-between items-center border-b pb-4">
                   <div>
                     <p className="font-bold text-slate-800">
-                      {tx.type === "deposit" ? t("deposit") : t("purchase")} a {tx.payee_id || tx.merchant_id || "Cuenta Externa"}
+                      {tx.type === "deposit" ? t("deposit") : t("purchase")} {t("to")} {tx.payee_id || tx.merchant_id || t("externalAccount")}
                     </p>
                     <p className="text-slate-500">{new Date(tx.date).toLocaleDateString()}</p>
                   </div>

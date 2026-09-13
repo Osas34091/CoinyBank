@@ -16,9 +16,13 @@
   "Transactions": {
     "back": "Back to Home",
     "title": "Recent Transactions",
+    "description": "Here you can see the history of your purchases and deposits.",
+    "noTransactions": "You have no recent transactions.",
     "loading": "Loading transactions...",
     "purchase": "Purchase",
-    "deposit": "Deposit"
+    "deposit": "Deposit",
+    "to": "to",
+    "externalAccount": "External Account"
   },
   "Cards": {
     "back": "Back to Home",

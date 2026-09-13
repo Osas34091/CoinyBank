@@ -1,9 +1,9 @@
 import { ArrowLeft, CreditCard } from "lucide-react";
-import { useTranslations } from "next-intl";
+import { getTranslations } from "next-intl/server";
 import { Link } from "@/i18n/routing";
 
-export default function TarjetasPage() {
-  const t = useTranslations("Cards");
+export default async function TarjetasPage() {
+  const t = await getTranslations("Cards");
   return (
     <main className="min-h-screen bg-slate-50 p-6 md:p-12 pb-32">
       <div className="max-w-4xl mx-auto space-y-6">

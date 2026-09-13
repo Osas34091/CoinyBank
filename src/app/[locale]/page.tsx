@@ -1,27 +1,19 @@
-"use client";
+import { ArrowRightLeft, CreditCard, ShieldCheck } from "lucide-react";
+import { Link } from "@/i18n/routing";
+import { getTranslations } from "next-intl/server";
+import { nessieService } from "@/lib/nessie";
 
-import { ArrowRightLeft, CreditCard, ShieldCheck, History, PiggyBank, HandCoins } from "lucide-react";
-import Link from "next/link";
-import { useState, useEffect } from "react";
-import { useTranslations } from "next-intl";
+export default async function Home() {
+  const t = await getTranslations("Dashboard");
+  
+  let bankingData: any = null;
+  let error: string | null = null;
+  try {
+    bankingData = await nessieService.getDashboardData();
+  } catch (err: any) {
+    error = err.message;
+  }
 
-export default function Home() {
-  const t = useTranslations("Dashboard");
-  const [bankingData, setBankingData] = useState<any>(null);
-  const [isLoading, setIsLoading] = useState(true);
-
-  useEffect(() => {
-    fetch('/api/nessie')
-      .then(res => res.json())
-      .then(data => {
-        setBankingData(data);
-        setIsLoading(false);
-      })
-      .catch(err => {
-        console.error(err);
-        setIsLoading(false);
-      });
-  }, []);
   return (
     <main className="min-h-screen bg-slate-50 text-slate-900 p-6 md:p-12 pb-32">
       <div className="max-w-4xl mx-auto space-y-8">
@@ -29,7 +21,7 @@ export default function Home() {
         <header className="flex justify-between items-center border-b-2 border-slate-200 pb-6">
           <div>
             <h1 className="text-4xl font-extrabold text-slate-800">
-              {t("hello")}, {isLoading ? "..." : bankingData?.customer?.firstName || t("user")}
+              {t("hello")}, {bankingData?.customer?.firstName || t("user")}
             </h1>
             <p className="text-xl text-slate-600 mt-2">{t("welcome")}</p>
           </div>
@@ -42,8 +34,10 @@ export default function Home() {
         <section className="bg-white p-8 rounded-2xl shadow-sm border border-slate-200">
           <h2 className="text-2xl font-bold text-slate-700 mb-2">{t("totalBalance")}</h2>
           <p className="text-6xl font-black text-blue-700">
-            {isLoading ? t("loading") : `$${bankingData?.account?.balance?.toLocaleString('es-MX', { minimumFractionDigits: 2 })}`} 
-            {!isLoading && <span className="text-2xl text-slate-500 ml-2">MXN</span>}
+            {bankingData 
+              ? `$${bankingData.account.balance.toLocaleString('es-MX', { minimumFractionDigits: 2 })}` 
+              : t("loading")} 
+            {bankingData && <span className="text-2xl text-slate-500 ml-2">MXN</span>}
           </p>
         </section>
 

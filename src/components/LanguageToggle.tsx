@@ -28,7 +28,7 @@ export default function LanguageToggle({ currentLocale }: { currentLocale: strin
             currentLocale === 'en' ? 'translate-x-8 text-blue-600' : 'translate-x-0 text-red-600'
           }`}
         >
-          {currentLocale.toUpperCase()}
+          {['es', 'en'].includes(currentLocale) ? currentLocale.toUpperCase() : 'ES'}
         </span>
       </button>
     </div>
