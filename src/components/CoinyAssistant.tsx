@@ -97,11 +97,12 @@ export default function CoinyAssistant() {
       setIsRightSide(endX > width / 2);
       
       // Entrance Jump from right side
-      const startX = width + 300; 
+      // Start slightly off-screen so the model is visible immediately when moving
+      const startX = width + 150; 
       controls.set({ x: startX, y: endY });
-      setIsEntering(true);
       
       setTimeout(() => {
+        setIsEntering(true);
         controls.start({
           x: endX,
           y: endY,
