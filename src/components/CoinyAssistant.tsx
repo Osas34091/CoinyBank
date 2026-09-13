@@ -121,7 +121,7 @@ export default function CoinyAssistant() {
           });
           resetWanderTimer();
         });
-      }, 1500);
+      }, 3000);
 
       return () => window.removeEventListener('resize', handleResize);
     }
