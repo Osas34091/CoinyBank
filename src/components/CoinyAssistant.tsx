@@ -15,6 +15,7 @@ export interface ChatOption {
 export interface AssistantResponse {
   message: string;
   options: ChatOption[];
+  msgKey?: 'greeting' | 'wake' | 'llm';
 }
 
 export default function CoinyAssistant() {
@@ -31,6 +32,32 @@ export default function CoinyAssistant() {
   
   const posRef = useRef({ x: 0, y: 0 });
   const [currentMessage, setCurrentMessage] = useState<AssistantResponse | null>(null);
+
+  // Re-translate hardcoded messages when language changes
+  useEffect(() => {
+    if (!currentMessage) return;
+    
+    if (currentMessage.msgKey === 'greeting') {
+      setCurrentMessage({
+        message: t("greetingMsg"),
+        options: [{ label: t("greetingOpt"), action: "ignore" }],
+        msgKey: 'greeting'
+      });
+    } else if (currentMessage.msgKey === 'wake') {
+      setCurrentMessage({
+        message: t("wakeMsg"),
+        options: [
+          { label: t("btnBalance"), action: "summary" },
+          { label: t("wakeOptIgnore"), action: "ignore" }
+        ],
+        msgKey: 'wake'
+      });
+    } else if (currentMessage.msgKey === 'llm') {
+      // Clear LLM message on lang change so the user asks again
+      setCurrentMessage(null);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [locale, t]);
 
   useEffect(() => {
     if (typeof window !== 'undefined') {
@@ -50,16 +77,18 @@ export default function CoinyAssistant() {
       
       setTimeout(() => {
         jumpToSafeZone(() => {
+          // Initialize with current language
           setCurrentMessage({
-            message: "¡Hola! Estoy explorando tu pantalla dando saltitos.",
-            options: [{ label: "¡Qué bien!", action: "ignore" }]
+            message: t("greetingMsg"),
+            options: [{ label: t("greetingOpt"), action: "ignore" }],
+            msgKey: 'greeting'
           });
         });
       }, 1000);
 
       return () => window.removeEventListener('resize', handleResize);
     }
-  }, [controls]);
+  }, [controls, t]);
 
   const speakAndAnimate = async (text: string, responseObj: AssistantResponse) => {
     try {
@@ -84,7 +113,9 @@ export default function CoinyAssistant() {
     } catch (e) {
       console.error(e);
     }
-    setCurrentMessage(responseObj);
+    
+    // Default to 'llm' if not specified so we know to clear it on language change
+    setCurrentMessage({ ...responseObj, msgKey: responseObj.msgKey || 'llm' });
   };
 
   useEffect(() => {
@@ -104,20 +135,20 @@ export default function CoinyAssistant() {
           setIsThinking(false);
           
           if (response.error) {
-            await speakAndAnimate("Parece que hubo un error.", { message: response.error, options: [] });
+            await speakAndAnimate(t("errorMsg1"), { message: response.error, options: [], msgKey: 'llm' });
           } else {
             await speakAndAnimate(response.message, response);
           }
         } catch (err) {
           setIsThinking(false);
-          await speakAndAnimate("Ups, algo salió mal.", { message: "Error", options: [] });
+          await speakAndAnimate(t("errorMsg2"), { message: "Error", options: [], msgKey: 'llm' });
         }
       }, 500);
     };
 
     window.addEventListener("coiny_wake", handleWake);
     return () => window.removeEventListener("coiny_wake", handleWake);
-  }, [locale]);
+  }, [locale, t]);
 
   const jumpToSafeZone = async (callback?: () => void) => {
     const margin = 200;
@@ -266,11 +297,12 @@ export default function CoinyAssistant() {
               if (!isDragging && !currentMessage && !isThinking) {
                 jumpToSafeZone(() => {
                   setCurrentMessage({
-                    message: "¿Me llamaste? ¿Qué se te ofrece?",
+                    message: t("wakeMsg"),
                     options: [
                       { label: t("btnBalance"), action: "summary" },
-                      { label: "Nada, sigue paseando", action: "ignore" }
-                    ]
+                      { label: t("wakeOptIgnore"), action: "ignore" }
+                    ],
+                    msgKey: 'wake'
                   });
                 });
               }

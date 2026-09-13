@@ -30,6 +30,13 @@
   },
   "Assistant": {
     "btnBalance": "Ver mi saldo actual",
-    "btnTransactions": "Revisar últimos movimientos"
+    "btnTransactions": "Revisar últimos movimientos",
+    "greetingMsg": "¡Hola! Estoy explorando tu pantalla dando saltitos.",
+    "greetingOpt": "¡Qué bien!",
+    "wakeMsg": "¿Me llamaste? ¿Qué se te ofrece?",
+    "wakeOptIgnore": "Nada, sigue paseando",
+    "errorMsg1": "Parece que hubo un error.",
+    "errorMsg2": "Ups, algo salió mal.",
+    "micCommand": "Hola, revisa mis cuentas"
   }
 }

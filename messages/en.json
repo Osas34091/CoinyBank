@@ -30,6 +30,13 @@
   },
   "Assistant": {
     "btnBalance": "View my current balance",
-    "btnTransactions": "Review recent transactions"
+    "btnTransactions": "Review recent transactions",
+    "greetingMsg": "Hi! I'm exploring your screen and hopping around.",
+    "greetingOpt": "That's great!",
+    "wakeMsg": "Did you call me? What can I do for you?",
+    "wakeOptIgnore": "Nothing, keep hopping",
+    "errorMsg1": "Looks like there was an error.",
+    "errorMsg2": "Oops, something went wrong.",
+    "micCommand": "Hi, check my accounts"
   }
 }
