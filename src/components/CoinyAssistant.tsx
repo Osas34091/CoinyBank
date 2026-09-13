@@ -101,18 +101,24 @@ export default function CoinyAssistant() {
       const startX = width + 50; 
       controls.set({ x: startX, y: endY, opacity: 0 });
       
-      // Wait longer before entering
+      // Wait 1.5s before entering
       setTimeout(() => {
         setIsEntering(true);
+        
+        // El movimiento físico de entrar
         controls.start({
           opacity: 1,
           x: endX,
           y: endY,
           transition: { 
             opacity: { duration: 0 }, // Instant visibility at frame 1
-            x: { duration: 1.2, ease: "easeOut" }
+            x: { duration: 2, ease: "easeOut" } // Tomar 2s para entrar a la pantalla
           }
-        }).then(() => {
+        });
+
+        // Darle 4 segundos completos a la animación para que reproduzca sus 120 frames 
+        // antes de detenerla y mostrar el mensaje.
+        setTimeout(() => {
           setIsEntering(false);
           setCurrentMessage({
             message: t("greetingMsg"),
@@ -120,8 +126,9 @@ export default function CoinyAssistant() {
             msgKey: 'greeting'
           });
           resetWanderTimer();
-        });
-      }, 3000);
+        }, 4000);
+
+      }, 1500);
 
       return () => window.removeEventListener('resize', handleResize);
     }
