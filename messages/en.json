@@ -17,7 +17,12 @@
     "myLoans": "My Loans",
     "myLoansDesc": "Keep track of your active loans.",
     "pay": "Pay",
-    "monthly": "Monthly"
+    "monthly": "Monthly",
+    "pending": "Pending",
+    "active": "Active",
+    "noBills": "No pending bills.",
+    "noLoans": "No active loans.",
+    "backToHome": "Back to Home"
   },
   "Transactions": {
     "back": "Back to Home",

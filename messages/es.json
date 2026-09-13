@@ -17,7 +17,12 @@
     "myLoans": "Mis Préstamos",
     "myLoansDesc": "Mantén al día tus créditos.",
     "pay": "Pagar",
-    "monthly": "Mensual"
+    "monthly": "Mensual",
+    "pending": "Pendiente",
+    "active": "Activo",
+    "noBills": "No tienes recibos pendientes.",
+    "noLoans": "No tienes préstamos activos.",
+    "backToHome": "Volver al Inicio"
   },
   "Transactions": {
     "back": "Volver al Inicio",

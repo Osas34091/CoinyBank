@@ -49,9 +49,15 @@ export default function Coin3D({ isSpeaking = false, isThinking = false, isJumpi
       return;
     }
 
-    if (isThinking || isSpeaking) {
+    if (isThinking) {
       // 2. Thinking
       playAnim("Thinking", true);
+      return;
+    }
+
+    if (isSpeaking) {
+      // Solo BaseRig fijo, porque el useFrame se encarga de estirarlo/achicarlo
+      playAnim("BaseRig", true);
       return;
     }
 

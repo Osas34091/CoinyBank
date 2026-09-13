@@ -16,7 +16,7 @@ export default async function BillsPage({ params: { locale } }: { params: { loca
         <header className="flex justify-between items-center mb-8">
           <Link href="/" className="flex items-center text-blue-600 font-bold hover:underline">
             <ArrowLeft className="w-5 h-5 mr-2" />
-            {locale === 'en' ? 'Back to Home' : 'Volver al Inicio'}
+            {t("backToHome")}
           </Link>
         </header>
 
@@ -28,7 +28,7 @@ export default async function BillsPage({ params: { locale } }: { params: { loca
             <div>
               <h2 className="text-3xl font-black text-slate-800">{t("upcomingBills")}</h2>
               <p className="text-slate-600">
-                {locale === 'en' ? 'Manage your upcoming payments.' : 'Administra tus próximos pagos.'}
+                {t("upcomingBillsDesc")}
               </p>
             </div>
           </div>
@@ -36,7 +36,7 @@ export default async function BillsPage({ params: { locale } }: { params: { loca
           <div className="flex flex-col gap-4">
             {bills.length === 0 ? (
               <p className="text-slate-500 text-center py-8">
-                {locale === 'en' ? 'No pending bills.' : 'No tienes recibos pendientes.'}
+                {t("noBills")}
               </p>
             ) : (
               bills.map((bill: any) => (
@@ -44,7 +44,7 @@ export default async function BillsPage({ params: { locale } }: { params: { loca
                   <div>
                     <p className="font-bold text-slate-800 text-lg">{bill.payee}</p>
                     <p className="text-sm text-slate-500">Ref: {bill.nickname}</p>
-                    <p className="text-xs font-bold text-slate-400 mt-1 uppercase">{bill.status} • {bill.date}</p>
+                    <p className="text-xs font-bold text-slate-400 mt-1 uppercase">{bill.status === "pending" ? t("pending") : bill.status} • {bill.date}</p>
                   </div>
                   <div className="text-right">
                     <p className="font-black text-red-600 text-xl">-${bill.amount}</p>
