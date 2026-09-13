@@ -112,12 +112,12 @@ export default function CoinyAssistant() {
           y: endY,
           transition: { 
             opacity: { duration: 0 }, // Instant visibility at frame 1
-            x: { duration: 2, ease: "easeOut" } // Tomar 2s para entrar a la pantalla
+            x: { duration: 4, ease: "easeOut" } // Tomar 4s para entrar a la pantalla (el doble de lento)
           }
         });
 
-        // Darle 4 segundos completos a la animación para que reproduzca sus 120 frames 
-        // antes de detenerla y mostrar el mensaje.
+        // Darle 4 segundos completos a la animación para que reproduzca sus frames 
+        // antes de detenerla y mostrar el mensaje. (Como el desplazamiento ahora toma 4s, esto empata perfecto)
         setTimeout(() => {
           setIsEntering(false);
           setCurrentMessage({

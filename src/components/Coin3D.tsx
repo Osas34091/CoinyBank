@@ -15,8 +15,8 @@ interface Coin3DProps {
 export default function Coin3D({ isSpeaking = false, isThinking = false, isJumping = false, isEntering = false }: Coin3DProps) {
   const group = useRef<THREE.Group>(null);
   
-  // Usar el nuevo modelo V5 (CoinityV3)
-  const { scene, animations } = useGLTF("/CoinityV3.glb");
+  // Usar el nuevo modelo V6 (CoinityV4)
+  const { scene, animations } = useGLTF("/CoinityV4.glb");
   const { actions } = useAnimations(animations, group);
 
   // Stop all animations gracefully
@@ -27,6 +27,44 @@ export default function Coin3D({ isSpeaking = false, isThinking = false, isJumpi
       }
     });
   };
+
+  const [currentIdleAnim, setCurrentIdleAnim] = useState<string | null>(null);
+  const idleTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const animClearRef = useRef<NodeJS.Timeout | null>(null);
+
+  // Random idle animations
+  useEffect(() => {
+    const isBusy = isEntering || isJumping || isThinking || isSpeaking;
+    
+    if (isBusy) {
+      if (idleTimeoutRef.current) clearTimeout(idleTimeoutRef.current);
+      if (animClearRef.current) clearTimeout(animClearRef.current);
+      setCurrentIdleAnim(null);
+      return;
+    }
+
+    const scheduleNextIdle = () => {
+      idleTimeoutRef.current = setTimeout(() => {
+        const anims = ["Looking", "Flip"];
+        const randAnim = anims[Math.floor(Math.random() * anims.length)];
+        setCurrentIdleAnim(randAnim);
+        
+        // Reset back to base pose after 2.5s (gives animation time to play)
+        animClearRef.current = setTimeout(() => {
+          setCurrentIdleAnim(null);
+          scheduleNextIdle();
+        }, 2500); 
+
+      }, 3000 + Math.random() * 1000); // 3 to 4 seconds
+    };
+
+    scheduleNextIdle();
+
+    return () => {
+      if (idleTimeoutRef.current) clearTimeout(idleTimeoutRef.current);
+      if (animClearRef.current) clearTimeout(animClearRef.current);
+    };
+  }, [isEntering, isJumping, isThinking, isSpeaking]);
 
   // State Machine
   useEffect(() => {
@@ -53,17 +91,19 @@ export default function Coin3D({ isSpeaking = false, isThinking = false, isJumpi
     }
 
     if (isThinking) {
-      // 1. Thinking
       playAnim("Thinking", true);
       return;
     }
 
-    // 2. Idle / Speaking / Jumping
-    // El nuevo modelo tiene la animación Thinking, Entrance y Jump.
-    // Lo detenemos para pose base.
+    if (currentIdleAnim) {
+      playAnim(currentIdleAnim, false);
+      return;
+    }
+
+    // Base pose
     stopAll();
 
-  }, [isJumping, isThinking, isSpeaking, isEntering, actions]);
+  }, [isJumping, isThinking, isSpeaking, isEntering, currentIdleAnim, actions]);
 
   // Squash & Stretch para hablar
   useFrame((state, delta) => {
@@ -86,4 +126,4 @@ export default function Coin3D({ isSpeaking = false, isThinking = false, isJumpi
   );
 }
 
-useGLTF.preload("/CoinityV3.glb");
+useGLTF.preload("/CoinityV4.glb");
