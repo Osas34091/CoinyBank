@@ -66,37 +66,28 @@ export default async function Home() {
           </Link>
           
           {/* Próximos Pagos (Bills) */}
-          <div className="text-left bg-white p-6 rounded-2xl shadow-sm border border-slate-200 block">
-            <h3 className="text-xl font-bold mb-2 text-slate-800">{t("upcomingBills")}</h3>
-            <p className="text-slate-600 text-sm mb-4">{t("upcomingBillsDesc")}</p>
-            {bankingData?.bills?.slice(0, 2).map((bill: any) => (
-              <div key={bill.id} className="flex justify-between items-center py-2 border-t border-slate-100 mt-2">
-                <div>
-                  <p className="font-bold text-slate-700">{bill.payee}</p>
-                  <p className="text-xs text-slate-500">{bill.date}</p>
-                </div>
-                <div className="text-right">
-                  <p className="font-bold text-red-600">-${bill.amount}</p>
-                  <button className="text-xs text-blue-600 font-bold hover:underline mt-1">{t("pay")}</button>
-                </div>
-              </div>
-            ))}
-          </div>
+          <Link 
+            href="/bills"
+            className="text-left bg-white p-6 rounded-2xl shadow-sm border border-slate-200 hover:border-blue-500 hover:shadow-md transition-all cursor-pointer outline-none focus:ring-4 focus:ring-blue-200 block"
+          >
+            <div className="w-14 h-14 bg-red-100 text-red-700 rounded-xl flex items-center justify-center mb-4">
+              <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-receipt"><path d="M4 2v20l2-1 2 1 2-1 2 1 2-1 2 1 2-1 2 1V2l-2 1-2-1-2 1-2-1-2 1-2-1-2 1Z"/><path d="M16 8h-6a2 2 0 1 0 0 4h4a2 2 0 1 1 0 4H8"/><path d="M12 17.5v-11"/></svg>
+            </div>
+            <h3 className="text-xl font-bold mb-2">{t("upcomingBills")}</h3>
+            <p className="text-slate-600 text-sm">{t("upcomingBillsDesc")}</p>
+          </Link>
 
           {/* Préstamos (Loans) */}
-          <div className="text-left bg-white p-6 rounded-2xl shadow-sm border border-slate-200 block">
-            <h3 className="text-xl font-bold mb-2 text-slate-800">{t("myLoans")}</h3>
-            <p className="text-slate-600 text-sm mb-4">{t("myLoansDesc")}</p>
-            {bankingData?.loans?.slice(0, 2).map((loan: any) => (
-              <div key={loan.id} className="flex flex-col py-2 border-t border-slate-100 mt-2">
-                <div className="flex justify-between items-center">
-                  <p className="font-bold text-slate-700">{loan.description}</p>
-                  <p className="font-black text-slate-800">${loan.amount}</p>
-                </div>
-                <p className="text-xs text-slate-500 mt-1">${loan.monthly} / {t("monthly")}</p>
-              </div>
-            ))}
-          </div>
+          <Link 
+            href="/loans"
+            className="text-left bg-white p-6 rounded-2xl shadow-sm border border-slate-200 hover:border-blue-500 hover:shadow-md transition-all cursor-pointer outline-none focus:ring-4 focus:ring-blue-200 block"
+          >
+            <div className="w-14 h-14 bg-green-100 text-green-700 rounded-xl flex items-center justify-center mb-4">
+              <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-landmark"><line x1="3" x2="21" y1="22" y2="22"/><line x1="6" x2="6" y1="18" y2="11"/><line x1="10" x2="10" y1="18" y2="11"/><line x1="14" x2="14" y1="18" y2="11"/><line x1="18" x2="18" y1="18" y2="11"/><polygon points="12 2 20 7 4 7"/></svg>
+            </div>
+            <h3 className="text-xl font-bold mb-2">{t("myLoans")}</h3>
+            <p className="text-slate-600 text-sm">{t("myLoansDesc")}</p>
+          </Link>
 
         </section>
 

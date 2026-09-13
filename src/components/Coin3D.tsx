@@ -28,8 +28,8 @@ export default function Coin3D({ isSpeaking = false, isThinking = false }: Coin3
       }
     };
 
-    if (isThinking) {
-      playAnim(); // Play immediately when starts thinking
+    if (isThinking || isSpeaking) {
+      playAnim(); // Play immediately when starts thinking or speaking
       
       const loopWithDelay = () => {
         const delay = Math.random() * 3000 + 2000; // Random interval between 2s and 5s
@@ -38,7 +38,7 @@ export default function Coin3D({ isSpeaking = false, isThinking = false }: Coin3
         const animDuration = action ? action.getClip().duration * 1000 : 1000;
         
         timeout = setTimeout(() => {
-          if (isThinking) {
+          if (isThinking || isSpeaking) {
             playAnim();
             loopWithDelay();
           }
@@ -54,7 +54,7 @@ export default function Coin3D({ isSpeaking = false, isThinking = false }: Coin3
     }
     
     return () => clearTimeout(timeout);
-  }, [isThinking, actions]);
+  }, [isThinking, isSpeaking, actions]);
 
   useFrame((state, delta) => {
     // Eliminado el squash & stretch manual porque aplasta el rig del modelo 3D y lo deforma.
@@ -64,7 +64,7 @@ export default function Coin3D({ isSpeaking = false, isThinking = false }: Coin3
   // engaña a estos componentes y hace que la cámara se mueva hacia arriba,
   // causando el efecto de "verlo desde arriba".
   return (
-    <group ref={group} rotation={[0, 0, 0]} position={[0, -1.1, 0]} scale={[0.4, 0.4, 0.4]}>
+    <group ref={group} rotation={[0, 0, 0]} position={[0, -1.8, 0]} scale={[0.8, 0.8, 0.8]}>
       <primitive object={scene} />
     </group>
   );
