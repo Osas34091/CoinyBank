@@ -2,7 +2,7 @@
 
 import { useRef, useEffect, useState } from "react";
 import { useFrame } from "@react-three/fiber";
-import { useGLTF, useAnimations } from "@react-three/drei";
+import { useGLTF, useAnimations, Clone, Outlines } from "@react-three/drei";
 import * as THREE from "three";
 
 interface Coin3DProps {
@@ -70,7 +70,7 @@ export default function Coin3D({ isSpeaking = false, isThinking = false, isJumpi
 
   return (
     <group ref={group} rotation={[0, 0, 0]} position={[0, -1.1, 0]} scale={[0.5, 0.5, 0.5]}>
-      <primitive object={scene} />
+      <Clone object={scene} inject={<Outlines thickness={3} color="black" screenspace />} />
     </group>
   );
 }

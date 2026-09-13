@@ -16,6 +16,8 @@ export async function POST(request: Request) {
     const customer = await nessieService.getCustomer(customerId);
     const accounts = await nessieService.getCustomerAccounts(customerId);
     const purchases = await nessieService.getAccountPurchases(accountId);
+    const bills = await nessieService.getAccountBills(accountId);
+    const loans = await nessieService.getAccountLoans(accountId);
     
     const mainAccount = accounts.find(a => a._id === accountId) || accounts[0];
     
@@ -26,7 +28,9 @@ export async function POST(request: Request) {
       userName: customer.first_name,
       balance: mainAccount.balance,
       recentTransactions: recentTx, // Contexto de las últimas 5 transacciones
-      totalSpent: totalSpent
+      totalSpent: totalSpent,
+      bills: bills,
+      loans: loans
     };
 
     // 2. Pasamos el contexto al "Cerebro" (Conexión VPS Vultr)

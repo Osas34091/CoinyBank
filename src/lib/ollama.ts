@@ -22,6 +22,8 @@ Current User Financial Context:
 - User Name: ${context.userName}
 - Main Account Balance: $${context.balance} MXN
 - Total Spent Recently: $${context.totalSpent} MXN
+- Pending Bills: ${context.bills && context.bills.length > 0 ? context.bills.map((b: any) => `$${b.payment_amount} for ${b.nickname || b.payee}`).join(', ') : 'None'}
+- Active Loans: ${context.loans && context.loans.length > 0 ? context.loans.map((l: any) => `$${l.amount} (${l.description})`).join(', ') : 'None'}
 - Recent Transactions:
 ${context.recentTransactions.map((tx: any) => `  * ${tx.type === 'deposit' ? '+' : '-'}$${tx.amount} for ${tx.description || tx.merchant_id || 'External'}`).join('\n')}
 
