@@ -8,15 +8,15 @@ import * as THREE from "three";
 interface Coin3DProps {
   isSpeaking?: boolean;
   isThinking?: boolean;
-  isJumping?: boolean; // When true, play Split.
+  isJumping?: boolean; // When true, play Jump.
   isEntering?: boolean;
 }
 
 export default function Coin3D({ isSpeaking = false, isThinking = false, isJumping = false, isEntering = false }: Coin3DProps) {
   const group = useRef<THREE.Group>(null);
   
-  // Usar el nuevo modelo V4 (CoinityV2)
-  const { scene, animations } = useGLTF("/CoinityV2.glb");
+  // Usar el nuevo modelo V5 (CoinityV3)
+  const { scene, animations } = useGLTF("/CoinityV3.glb");
   const { actions } = useAnimations(animations, group);
 
   // Stop all animations gracefully
@@ -46,6 +46,11 @@ export default function Coin3D({ isSpeaking = false, isThinking = false, isJumpi
       playAnim("Entrance", false);
       return;
     }
+    
+    if (isJumping) {
+      playAnim("Jump", true);
+      return;
+    }
 
     if (isThinking) {
       // 1. Thinking
@@ -54,7 +59,7 @@ export default function Coin3D({ isSpeaking = false, isThinking = false, isJumpi
     }
 
     // 2. Idle / Speaking / Jumping
-    // El nuevo modelo solo tiene la animación Thinking y Entrance.
+    // El nuevo modelo tiene la animación Thinking, Entrance y Jump.
     // Lo detenemos para pose base.
     stopAll();
 
@@ -81,4 +86,4 @@ export default function Coin3D({ isSpeaking = false, isThinking = false, isJumpi
   );
 }
 
-useGLTF.preload("/CoinityV2.glb");
+useGLTF.preload("/CoinityV3.glb");

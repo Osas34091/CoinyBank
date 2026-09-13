@@ -133,6 +133,9 @@ export default function CoinyAssistant() {
       audioRef.current.currentTime = 0;
       setIsSpeaking(false);
     }
+
+    // Ensure there is enough space for the message bubble before speaking
+    await jumpToSafeZone();
     
     try {
       const res = await fetch('/api/tts', {
@@ -303,19 +306,25 @@ export default function CoinyAssistant() {
   };
 
   const jumpToSafeZone = async (callback?: () => void) => {
-    const margin = 200;
+    const margin = 150;
+    const topMargin = 400; // Much higher margin for the bubble
     const { x, y } = posRef.current;
     const { width, height } = windowSize;
     
-    if (x < margin || x > width - margin || y < margin || y > height - margin) {
+    if (x < margin || x > width - margin || y < topMargin || y > height - margin) {
       const safeX = Math.max(margin, Math.min(x, width - margin));
-      const safeY = Math.max(margin, Math.min(y, height - margin));
+      const safeY = Math.max(topMargin, Math.min(y, height - margin));
       
+      setIsJumping(true);
       await controls.start({
         x: safeX,
-        y: safeY,
-        transition: { type: "spring", stiffness: 100, damping: 10 }
+        y: [y, y - 150, safeY], // Arc jump
+        transition: { 
+          x: { duration: 0.8, ease: "linear" },
+          y: { duration: 0.8, times: [0, 0.5, 1], ease: ["easeOut", "easeIn"] }
+        }
       });
+      setIsJumping(false);
       posRef.current = { x: safeX, y: safeY };
       setIsRightSide(safeX > width / 2);
     }
