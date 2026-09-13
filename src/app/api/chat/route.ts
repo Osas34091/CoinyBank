@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { generateAssistantResponse } from '@/lib/ollama-mock';
+import { generateRealAssistantResponse } from '@/lib/ollama';
 import { nessieService } from '@/lib/nessie';
 
 export async function POST(request: Request) {
@@ -23,9 +23,8 @@ export async function POST(request: Request) {
       recentTransactions: purchases.slice(0, 5) // Contexto de las últimas 5 transacciones
     };
 
-    // 2. Pasamos el contexto al "Cerebro"
-    // NOTA: Cuando el VPS esté listo, cambiaremos `generateAssistantResponse` por un fetch real a Ollama (localhost:11434)
-    const response = await generateAssistantResponse(bankingContext, message, lang);
+    // 2. Pasamos el contexto al "Cerebro" (Conexión VPS Vultr)
+    const response = await generateRealAssistantResponse(bankingContext, message, lang);
 
     return NextResponse.json(response);
 

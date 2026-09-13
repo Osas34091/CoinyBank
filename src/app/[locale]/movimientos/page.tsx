@@ -1,3 +1,4 @@
+"use client";
 import { ArrowLeft } from "lucide-react";
 import { useState, useEffect } from "react";
 import { useTranslations } from "next-intl";

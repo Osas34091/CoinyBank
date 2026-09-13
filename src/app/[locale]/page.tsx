@@ -1,6 +1,6 @@
 "use client";
 
-import { ArrowRightLeft, CreditCard, ShieldCheck } from "lucide-react";
+import { ArrowRightLeft, CreditCard, ShieldCheck, History, PiggyBank, HandCoins } from "lucide-react";
 import Link from "next/link";
 import { useState, useEffect } from "react";
 import { useTranslations } from "next-intl";
