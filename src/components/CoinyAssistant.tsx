@@ -29,9 +29,10 @@ export default function CoinyAssistant() {
   const [showKeyboard, setShowKeyboard] = useState(false);
   const [inputValue, setInputValue] = useState("");
   const controls = useAnimation();
-  const [windowSize, setWindowSize] = useState({ width: 0, height: 0 });
   const [isRightSide, setIsRightSide] = useState(true);
-  const [sideIndex, setSideIndex] = useState(0);
+  const [isJumping, setIsJumping] = useState(false);
+  const lastActivityTime = useRef<number>(Date.now());
+  const wanderTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   
   const posRef = useRef({ x: 0, y: 0 });
   const audioRef = useRef<HTMLAudioElement | null>(null);
@@ -86,31 +87,33 @@ export default function CoinyAssistant() {
       const handleResize = () => setWindowSize({ width: window.innerWidth, height: window.innerHeight });
       window.addEventListener('resize', handleResize);
       
-      // Initial position outside bottom right
-      const startX = width > 768 ? width - 150 : width / 2;
+      const endX = width > 768 ? width - 150 : width / 2;
       const endY = height - 150;
       
-      posRef.current = { x: startX, y: endY };
-      setIsRightSide(startX > width / 2);
+      posRef.current = { x: endX, y: endY };
+      setIsRightSide(endX > width / 2);
       
-      // Start outside bottom
-      controls.set({ x: startX, y: height + 300 });
+      // Entrance Jump from left side
+      const startX = -300; 
+      controls.set({ x: startX, y: endY - 100 });
+      setIsJumping(true);
       
-      // Entrance Jump
       setTimeout(() => {
         controls.start({
-          y: [height + 300, endY - 200, endY],
+          x: endX,
+          y: [endY - 100, endY - 300, endY],
           transition: { 
-            duration: 1.2, 
-            times: [0, 0.6, 1],
-            ease: ["easeOut", "easeIn"]
+            x: { duration: 1.2, ease: "linear" },
+            y: { duration: 1.2, times: [0, 0.5, 1], ease: ["easeOut", "easeIn"] }
           }
         }).then(() => {
+          setIsJumping(false);
           setCurrentMessage({
             message: t("greetingMsg"),
             options: [{ label: t("greetingOpt"), action: "ignore" }],
             msgKey: 'greeting'
           });
+          resetWanderTimer();
         });
       }, 500);
 
@@ -202,16 +205,73 @@ export default function CoinyAssistant() {
       setCurrentMessage(null);
     };
     
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, [currentMessage, isThinking]);
+  // WANDERING LOGIC
+  const resetWanderTimer = () => {
+    lastActivityTime.current = Date.now();
+    if (wanderTimeoutRef.current) clearTimeout(wanderTimeoutRef.current);
+    
+    const scheduleNextWander = () => {
+      const timeSinceActivity = Date.now() - lastActivityTime.current;
+      if (timeSinceActivity >= 5000 && !isThinking && !isSpeaking && !currentMessage && !isDragging && !isJumping) {
+        wanderToRandomSpot();
+      } else {
+        // Not ready, try again later
+        wanderTimeoutRef.current = setTimeout(scheduleNextWander, 2000);
+      }
+    };
+    
+    wanderTimeoutRef.current = setTimeout(scheduleNextWander, Math.random() * 5000 + 5000); // 5 to 10 seconds
+  };
+
+  const wanderToRandomSpot = () => {
+    if (isThinking || isSpeaking || currentMessage || isDragging || isJumping) return;
+    setIsJumping(true);
+    
+    const margin = 150;
+    const minX = margin;
+    const maxX = windowSize.width - margin;
+    const minY = margin + 100; // Leave room for chat bubble
+    const maxY = windowSize.height - margin;
+    
+    const targetX = Math.random() * (maxX - minX) + minX;
+    const targetY = Math.random() * (maxY - minY) + minY;
+    
+    setIsRightSide(targetX > windowSize.width / 2);
+    
+    // Jump arc based on distance
+    const dist = Math.sqrt(Math.pow(targetX - posRef.current.x, 2) + Math.pow(targetY - posRef.current.y, 2));
+    const jumpHeight = Math.min(300, Math.max(100, dist * 0.5));
+    const duration = Math.min(1.5, Math.max(0.8, dist / 500));
+    
+    controls.start({
+      x: targetX,
+      y: [posRef.current.y, posRef.current.y - jumpHeight, targetY],
+      transition: { 
+        x: { duration, ease: "linear" },
+        y: { duration, times: [0, 0.5, 1], ease: ["easeOut", "easeIn"] }
+      }
+    }).then(() => {
+      setIsJumping(false);
+      resetWanderTimer();
+    });
+    
+    posRef.current = { x: targetX, y: targetY };
+  };
+
+  useEffect(() => {
+    resetWanderTimer();
+    return () => {
+      if (wanderTimeoutRef.current) clearTimeout(wanderTimeoutRef.current);
+    };
+  }, [isThinking, isSpeaking, currentMessage, isDragging, isJumping]);
 
   const toggleSide = () => {
-    if (isThinking || isSpeaking || currentMessage) return; // Don't jump while busy
+    if (isThinking || isSpeaking || currentMessage || isJumping) return; // Don't jump while busy
+    lastActivityTime.current = Date.now();
+    setIsJumping(true);
     
     const newIsRight = !isRightSide;
     setIsRightSide(newIsRight);
-    setSideIndex(prev => prev + 1); // trigger Split animation
 
     const targetX = newIsRight ? windowSize.width - 150 : 150;
     const targetY = windowSize.height - 150;
@@ -219,14 +279,48 @@ export default function CoinyAssistant() {
     // Parabola physics
     controls.start({
       x: targetX,
-      y: [targetY, targetY - 250, targetY], // Jump arc
+      y: [posRef.current.y, posRef.current.y - 250, targetY], // Jump arc
       transition: { 
         x: { duration: 0.8, ease: "linear" },
         y: { duration: 0.8, times: [0, 0.5, 1], ease: ["easeOut", "easeIn"] }
       }
+    }).then(() => {
+      setIsJumping(false);
+      resetWanderTimer();
     });
     
     posRef.current = { x: targetX, y: targetY };
+  };
+
+  const jumpToSafeZone = async (callback?: () => void) => {
+    const margin = 200;
+    const { x, y } = posRef.current;
+    const { width, height } = windowSize;
+    
+    if (x < margin || x > width - margin || y < margin || y > height - margin) {
+      const safeX = Math.max(margin, Math.min(x, width - margin));
+      const safeY = Math.max(margin, Math.min(y, height - margin));
+      
+      await controls.start({
+        x: safeX,
+        y: safeY,
+        transition: { type: "spring", stiffness: 100, damping: 10 }
+      });
+      posRef.current = { x: safeX, y: safeY };
+      setIsRightSide(safeX > width / 2);
+    }
+    if (callback) callback();
+  };
+
+  const handleDragEnd = (e: any, info: any) => {
+    setIsDragging(false);
+    resetWanderTimer();
+    posRef.current = {
+      x: posRef.current.x + info.offset.x,
+      y: posRef.current.y + info.offset.y,
+    };
+    setIsRightSide(posRef.current.x > windowSize.width / 2);
+    jumpToSafeZone();
   };
 
   const handleOptionClick = async (action: string, label: string) => {
@@ -332,8 +426,16 @@ export default function CoinyAssistant() {
     <div className="fixed inset-0 z-50 pointer-events-none">
       <motion.div 
         id="coiny-assistant-container"
+        drag
+        dragMomentum={false}
+        onDragStart={() => {
+          setIsDragging(true);
+          lastActivityTime.current = Date.now();
+        }}
+        onDragEnd={handleDragEnd}
         animate={controls}
         className="pointer-events-auto absolute flex flex-col items-center justify-center"
+        style={{ touchAction: 'none' }}
       >
         <AnimatePresence>
           {currentMessage && (
@@ -441,11 +543,14 @@ export default function CoinyAssistant() {
 
           <motion.div
             onClick={() => {
-              if (!currentMessage && !isThinking) {
-                setCurrentMessage({
-                  message: t("wakeMsg"),
-                  options: getWakeOptions(),
-                  msgKey: 'wake'
+              lastActivityTime.current = Date.now();
+              if (!isDragging && !currentMessage && !isThinking) {
+                jumpToSafeZone(() => {
+                  setCurrentMessage({
+                    message: t("wakeMsg"),
+                    options: getWakeOptions(),
+                    msgKey: 'wake'
+                  });
                 });
               }
             }}
@@ -457,7 +562,7 @@ export default function CoinyAssistant() {
               <Canvas camera={{ position: [0, 0, 4], fov: 35 }}>
                 <ambientLight intensity={1.5} />
                 <directionalLight position={[10, 10, 10]} intensity={2} />
-                <Coin3D isSpeaking={isSpeaking} isThinking={isThinking} sideIndex={sideIndex} />
+                <Coin3D isSpeaking={isSpeaking} isThinking={isThinking} isJumping={isJumping} />
               </Canvas>
             </div>
           </motion.div>
